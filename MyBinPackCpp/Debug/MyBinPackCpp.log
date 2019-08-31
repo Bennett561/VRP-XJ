@@ -1,0 +1,4 @@
+﻿  main.cpp
+d:\装箱\code\mybinpackcpp\mybinpackcpp\util.h(124): warning C4715: “my_util::pick_vehicle”: 不是所有的控件路径都返回值
+  MyBinPackCpp.vcxproj -> D:\装箱\code\MyBinPackCpp\Debug\MyBinPackCpp.exe
+  MyBinPackCpp.vcxproj -> D:\装箱\code\MyBinPackCpp\Debug\MyBinPackCpp.pdb (Partial PDB)
