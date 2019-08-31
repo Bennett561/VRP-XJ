@@ -32,26 +32,15 @@ namespace vns
 	//	}
 	//}
 
-	//vector<Bin> get_bins_data() {
-	//	char* bin_json = my_util::readFileIntoString("month3\\bin.json");
-	//	Document d;
-	//	d.Parse(bin_json);
-	//	const Value& a = d["Bin"];
-	//	vector<Bin> bins;
-	//	for (SizeType i = 0; i < a.Size(); i++) {// 使用 SizeType 而不是 size_t
-	//		Bin *temp = new Bin(a[i]["bin_id"].GetString(),
-	//			a[i]["bin_width"].GetDouble(),
-	//			a[i]["bin_length"].GetDouble(),
-	//			a[i]["bin_weight"].GetDouble(),
-	//			a[i]["station"].GetString());
-	//		bins.push_back(*temp);
-	//	}
-
 	//	return bins;
 	//}
-	void initialize(unordered_map<string, Vehicle>& vehicles, unordered_map<string, Vehicle>& unused_vehicles, vector<Vehicle>& used_vehicles) {
+	void initialize(unordered_map<string, Vehicle>& vehicles, 
+		unordered_map<string, Vehicle>& unused_vehicles, 
+		vector<Vehicle>& used_vehicles,
+		const unordered_map<string, Bin>& bins,
+		unordered_map<string, Station> stations) {
 		char* init_sol_json = my_util::readFileIntoString("result\\month3init_sol.json");
-		my_util::resolve_sol(init_sol_json, vehicles, unused_vehicles, used_vehicles);
+		my_util::resolve_sol(init_sol_json, vehicles, unused_vehicles, used_vehicles, bins, stations);
 	}
 
 	bool move1() {

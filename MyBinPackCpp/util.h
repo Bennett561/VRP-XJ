@@ -174,9 +174,18 @@ namespace my_util{
 
 
 	//½âÎö½â
-	void resolve_sol(char* init_sol_json, unordered_map<string, Vehicle>& vehicles, unordered_map<string, Vehicle>& unused_vehicles, vector<Vehicle>& used_vehicles) {
+	void resolve_sol(char* init_sol_json, 
+		unordered_map<string, Vehicle>& vehicles, 
+		unordered_map<string, Vehicle>& unused_vehicles, 
+		vector<Vehicle>& used_vehicles, 
+		const unordered_map<string, Bin>& bins,
+		unordered_map<string, Station> stations) {
+
 		unused_vehicles = vehicles;
 		used_vehicles.clear();
+		for (auto& s : stations) {
+			s.second.pass_vehicles.clear();
+		}
 		Document d;
 		d.Parse(init_sol_json);
 		for (auto& m : d.GetObject()) {
@@ -185,13 +194,17 @@ namespace my_util{
 			used_vehicles.push_back(v);
 			unused_vehicles.erase(m.name.GetString());
 			v.visit_order.clear();
+
 			for (auto& sid : m.value.GetArray()[0].GetArray()) {
-				//cout << sid.GetString() << '\t';
-				v.visit_order.push_back(sid.GetString());
-				cout << "size:" << v.visit_order.size() << endl;
+				used_vehicles.back().visit_order.push_back(sid.GetString());
+				stations.at(sid.GetString()).pass_vehicles.insert(vid);
 			}
+			used_vehicles.back().set_loaded_area(0);
+			used_vehicles.back().set_loaded_weight(0);
 			for (auto& bid : m.value.GetArray()[1].GetArray()) {
-				v.loaded_items.push_back(bid.GetString());
+				used_vehicles.back().set_loaded_area(bins.at(bid.GetString()).get_area() + used_vehicles.back().get_loaded_area());
+				used_vehicles.back().set_loaded_weight(bins.at(bid.GetString()).get_weight() + used_vehicles.back().get_loaded_weight());
+				used_vehicles.back().loaded_items.push_back(bid.GetString());
 			}
 		}
 	}

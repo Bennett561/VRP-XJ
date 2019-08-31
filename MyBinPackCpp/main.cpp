@@ -16,9 +16,7 @@ int main() {
 
 
 	// 导入数据
-	//unordered_map<string, Bin> bins = my_util::get_bins_data();
-	//for (auto& p : bins)
-	//	std::cout << " " << p.first << " => " << p.second.get_length() << '\n';
+	unordered_map<string, Bin> bins = my_util::get_bins_data();
 	unordered_map<string, Vehicle> vehicles = my_util::get_vehicles_data();
 	unordered_map<string, Station> stations = my_util::get_stations_data();
 	//double distance_matrix[num_stations][num_stations];  //"s005到s004的距离为：distance_matrix[4-1][5-1] 顺序是反的" 
@@ -30,14 +28,12 @@ int main() {
 	////cout << stations.at(4).get_load_time() << endl;
 	vector<Vehicle> used_vehicles;
 	unordered_map<string, Vehicle> unused_vehicles;
-	vns::initialize(vehicles, unused_vehicles, used_vehicles);
+	vns::initialize(vehicles, unused_vehicles, used_vehicles, bins, stations);
 	cout << "用车数量：" << used_vehicles.size() << endl;
-	cout << "站点数量：" << used_vehicles.at(1).visit_order.size() << endl;
-	my_util::print_vector(used_vehicles.at(1).visit_order);
+	cout << "所装箱子：" << used_vehicles.at(1).loaded_items.size() << endl;
+	my_util::print_vector(used_vehicles.at(1).loaded_items);
 
-	vector<string> a = { "234", "2342" };
-	my_util::print_vector(a);
-	//
+
 	//vector<Station>::iterator sit = stations.begin();
 	//while (sit != stations.end()) {
 	//	vector<Bin>::iterator bit = bins.begin();
