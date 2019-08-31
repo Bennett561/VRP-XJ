@@ -19,19 +19,17 @@ int main() {
 	unordered_map<string, Bin> bins = my_util::get_bins_data();
 	unordered_map<string, Vehicle> vehicles = my_util::get_vehicles_data();
 	unordered_map<string, Station> stations = my_util::get_stations_data();
-	//double distance_matrix[num_stations][num_stations];  //"s005到s004的距离为：distance_matrix[4-1][5-1] 顺序是反的" 
-	//double load_time_matrix[num_stations][num_stations]; //"s005到s004的运输时间为：load_time_matrix[4-1][5-1]" 
-	//my_util::get_distance_matrix(distance_matrix);
-	//my_util::get_load_time_matrix(load_time_matrix);
+	double distance_matrix[num_stations][num_stations];  //"s005到s004的距离为：distance_matrix[4-1][5-1] 顺序是反的" 
+	double load_time_matrix[num_stations][num_stations]; //"s005到s004的运输时间为：load_time_matrix[4-1][5-1]" 
+	my_util::get_distance_matrix(distance_matrix);
+	my_util::get_load_time_matrix(load_time_matrix);
 
 	////cout << load_time_matrix[4][5] << endl;
 	////cout << stations.at(4).get_load_time() << endl;
 	vector<Vehicle> used_vehicles;
 	unordered_map<string, Vehicle> unused_vehicles;
 	vns::initialize(vehicles, unused_vehicles, used_vehicles, bins, stations);
-	cout << "用车数量：" << used_vehicles.size() << endl;
-	cout << "所装箱子：" << used_vehicles.at(1).loaded_items.size() << endl;
-	my_util::print_vector(used_vehicles.at(1).loaded_items);
+	cout << "初始总成本:" << my_util::cal_total_cost(used_vehicles, distance_matrix);
 
 
 	//vector<Station>::iterator sit = stations.begin();

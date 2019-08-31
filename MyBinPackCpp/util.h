@@ -13,9 +13,9 @@ using namespace std;
 const int num_stations = 215;  // 站点数目
 
 
-namespace my_util{
+namespace my_util {
 
-	
+
 	//从文件读入到string里
 	char* readFileIntoString(char * filename)
 	{
@@ -29,7 +29,7 @@ namespace my_util{
 		return _strdup(str.c_str());
 	}
 
-	unordered_map<string, Bin> get_bins_data(){
+	unordered_map<string, Bin> get_bins_data() {
 		char* bin_json = my_util::readFileIntoString("month3\\bin.json");
 		Document d;
 		d.Parse(bin_json);
@@ -91,7 +91,7 @@ namespace my_util{
 		for (SizeType i = 0; i < a.Size(); i++) {// 使用 SizeType 而不是 size_t
 			distance_matrix[i / num_stations][i % num_stations] = a[i]["distance"].GetDouble();
 		}
-		for (size_t i = 0; i < num_stations; i++){
+		for (size_t i = 0; i < num_stations; i++) {
 			distance_matrix[i][i] = 0.0;
 		}
 	}
@@ -132,9 +132,9 @@ namespace my_util{
 	}
 
 	//计算路程
-	double route_distance(vector<string>& route, double *distance_matrix[num_stations]) {
+	double route_distance(const vector<string>& route, double distance_matrix[][num_stations]) {
 		double d = 0;
-		for(size_t i = 0; i <route.size() - 1; i++)
+		for (size_t i = 0; i < route.size() - 1; i++)
 		{
 			d += distance_matrix[id_to_num(route.at(i + 1))][id_to_num(route.at(i))];
 		}
@@ -148,7 +148,7 @@ namespace my_util{
 		for each(string s in route) {
 			total_time += stations.at(id_to_num(s)).get_load_time();
 		}
-		for (size_t i = 0; i <route.size() - 1; i++)
+		for (size_t i = 0; i < route.size() - 1; i++)
 		{
 			total_time += load_time_matrix[id_to_num(route.at(i + 1))][id_to_num(route.at(i))];
 		}
@@ -156,7 +156,7 @@ namespace my_util{
 	}
 
 	//计算把j 并入i之后的最佳路线及成本的节省
-	void compute_route(Vehicle i, Vehicle j, double *distance_matrix[num_stations]) {
+	void compute_route(Vehicle i, Vehicle j, double distance_matrix[][num_stations]) {
 		double cost_ori = j.get_flagdown_fare() + j.get_distance_fare() * route_distance(j.visit_order, distance_matrix) + \
 			i.get_distance_fare() * route_distance(i.visit_order, distance_matrix);
 		vector<string> temp_vo = i.visit_order;
@@ -167,17 +167,17 @@ namespace my_util{
 	//为车辆比较定义key函数
 	typedef function<bool(pair<string, Vehicle>, pair<string, Vehicle>)> VehicleComparator;
 	//定义按面积比较的key
-	VehicleComparator cmp_by_area = 
+	VehicleComparator cmp_by_area =
 		[](pair<string, Vehicle> elem1, pair<string, Vehicle> elem2) {
 		return elem1.second.get_area() < elem2.second.get_area();
 	};
 
 
 	//解析解
-	void resolve_sol(char* init_sol_json, 
-		unordered_map<string, Vehicle>& vehicles, 
-		unordered_map<string, Vehicle>& unused_vehicles, 
-		vector<Vehicle>& used_vehicles, 
+	void resolve_sol(char* init_sol_json,
+		unordered_map<string, Vehicle>& vehicles,
+		unordered_map<string, Vehicle>& unused_vehicles,
+		vector<Vehicle>& used_vehicles,
 		const unordered_map<string, Bin>& bins,
 		unordered_map<string, Station> stations) {
 
@@ -216,6 +216,16 @@ namespace my_util{
 		for (auto item : v) {
 			cout << item << '\t';
 		}
+	}
+
+	//计算总成本
+	double cal_total_cost(vector<Vehicle>& used_vehicles, double distance_matrix[][num_stations]) {
+		double total_cost = 0;
+		for each (auto& v in used_vehicles) {
+			total_cost += v.get_distance_fare() * route_distance(v.visit_order, distance_matrix);
+			total_cost += v.get_flagdown_fare();
+		}
+		return total_cost;
 	}
 
 }
