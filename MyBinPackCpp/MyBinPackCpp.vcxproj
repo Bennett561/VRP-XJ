@@ -114,6 +114,7 @@
     <ClInclude Include="Station.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="Vehicle.h" />
+    <ClInclude Include="VNS.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

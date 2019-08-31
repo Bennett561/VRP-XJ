@@ -3,6 +3,8 @@
 #include <sstream>
 #include <algorithm>
 #include <string>
+#include <functional>
+#include <unordered_map>
 #include "rapidjson\document.h"
 #include "rapidjson\writer.h"
 #include "rapidjson\stringbuffer.h"
@@ -27,30 +29,30 @@ namespace my_util{
 		return _strdup(str.c_str());
 	}
 
-	vector<Bin> get_bins_data(){
+	unordered_map<string, Bin> get_bins_data(){
 		char* bin_json = my_util::readFileIntoString("month3\\bin.json");
 		Document d;
 		d.Parse(bin_json);
 		const Value& a = d["Bin"];
-		vector<Bin> bins;
+		unordered_map<string, Bin> bins;
 		for (SizeType i = 0; i < a.Size(); i++) {// 使用 SizeType 而不是 size_t
 			Bin *temp = new Bin(a[i]["bin_id"].GetString(),
 				a[i]["bin_width"].GetDouble(),
 				a[i]["bin_length"].GetDouble(),
 				a[i]["bin_weight"].GetDouble(),
 				a[i]["station"].GetString());
-			bins.push_back(*temp);
+			bins.insert({ a[i]["bin_id"].GetString(), *temp });
 		}
 
 		return bins;
 	}
 
-	vector<Vehicle> get_vehicles_data() {
+	unordered_map<string, Vehicle> get_vehicles_data() {
 		char* vehicle_json = my_util::readFileIntoString("month3\\vehicle.json");
 		Document d;
 		d.Parse(vehicle_json);
 		const Value& a = d["Vehicle"];
-		vector<Vehicle> vehicles;
+		unordered_map<string, Vehicle> vehicles;
 		for (SizeType i = 0; i < a.Size(); i++) {// 使用 SizeType 而不是 size_t
 			Vehicle *temp = new Vehicle(a[i]["vehicle_id"].GetString(),
 				a[i]["vehicle_width"].GetDouble(),
@@ -58,24 +60,24 @@ namespace my_util{
 				a[i]["vehicle_weight"].GetDouble(),
 				a[i]["flag_down_fare"].GetDouble(),
 				a[i]["distance_fare"].GetDouble());
-			vehicles.push_back(*temp);
+			vehicles.insert({ a[i]["vehicle_id"].GetString(), *temp });
 		}
 
 		return vehicles;
 	}
 
-	vector<Station> get_stations_data() {
+	unordered_map<string, Station> get_stations_data() {
 		char* station_json = my_util::readFileIntoString("month3\\station.json");
 		Document d;
 		d.Parse(station_json);
 		const Value& a = d["Station"];
-		vector<Station> stations;
+		unordered_map<string, Station> stations;
 		for (SizeType i = 0; i < a.Size(); i++) {// 使用 SizeType 而不是 size_t
 			//Station(string id, double limit, double load_time);
 			Station *temp = new Station(a[i]["station_id"].GetString(),
 				a[i]["vehicle_limit"].GetDouble(),
 				a[i]["loading_time"].GetDouble());
-			stations.push_back(*temp);
+			stations.insert({ a[i]["station_id"].GetString(),*temp });
 		}
 
 		return stations;
@@ -160,6 +162,47 @@ namespace my_util{
 		vector<string> temp_vo = i.visit_order;
 		temp_vo.insert(temp_vo.end(), j.visit_order.begin(), j.visit_order.end());
 		unique(temp_vo.begin(), temp_vo.end());
+	}
+
+	//为车辆比较定义key函数
+	typedef function<bool(pair<string, Vehicle>, pair<string, Vehicle>)> VehicleComparator;
+	//定义按面积比较的key
+	VehicleComparator cmp_by_area = 
+		[](pair<string, Vehicle> elem1, pair<string, Vehicle> elem2) {
+		return elem1.second.get_area() < elem2.second.get_area();
+	};
+
+
+	//解析解
+	void resolve_sol(char* init_sol_json, unordered_map<string, Vehicle>& vehicles, unordered_map<string, Vehicle>& unused_vehicles, vector<Vehicle>& used_vehicles) {
+		unused_vehicles = vehicles;
+		used_vehicles.clear();
+		Document d;
+		d.Parse(init_sol_json);
+		for (auto& m : d.GetObject()) {
+			string vid = m.name.GetString();
+			Vehicle &v = vehicles.at(vid);
+			used_vehicles.push_back(v);
+			unused_vehicles.erase(m.name.GetString());
+			v.visit_order.clear();
+			for (auto& sid : m.value.GetArray()[0].GetArray()) {
+				//cout << sid.GetString() << '\t';
+				v.visit_order.push_back(sid.GetString());
+				cout << "size:" << v.visit_order.size() << endl;
+			}
+			for (auto& bid : m.value.GetArray()[1].GetArray()) {
+				v.loaded_items.push_back(bid.GetString());
+			}
+		}
+	}
+
+	//打印vector
+	template <typename T>
+	void print_vector(vector<T> v)
+	{
+		for (auto item : v) {
+			cout << item << '\t';
+		}
 	}
 
 }

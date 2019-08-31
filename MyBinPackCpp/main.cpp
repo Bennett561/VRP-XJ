@@ -3,6 +3,7 @@
 #include "Station.h"
 #include <iostream>
 #include <map>
+#include "VNS.h"
 #include "util.h" //工具函数
 #include "rapidjson\document.h"
 #include "rapidjson\writer.h"
@@ -12,16 +13,14 @@ using namespace rapidjson;
 
 
 int main() {
-	vector<int> a = { 3,3,4,5 };
-	vector<int> b = a;
-	b.at(0) = 7;
-	cout << "变了吗？" << a.at(0) << endl;
-	cout << "变了吗？" << b.at(0) << endl;
+
 
 	// 导入数据
-	//vector<Bin> bins = my_util::get_bins_data();  //bins[i] 即为 "B(i+1)"
-	//vector<Vehicle> vehicles = my_util::get_vehicles_data();
-	//vector<Station> stations = my_util::get_stations_data();
+	//unordered_map<string, Bin> bins = my_util::get_bins_data();
+	//for (auto& p : bins)
+	//	std::cout << " " << p.first << " => " << p.second.get_length() << '\n';
+	unordered_map<string, Vehicle> vehicles = my_util::get_vehicles_data();
+	unordered_map<string, Station> stations = my_util::get_stations_data();
 	//double distance_matrix[num_stations][num_stations];  //"s005到s004的距离为：distance_matrix[4-1][5-1] 顺序是反的" 
 	//double load_time_matrix[num_stations][num_stations]; //"s005到s004的运输时间为：load_time_matrix[4-1][5-1]" 
 	//my_util::get_distance_matrix(distance_matrix);
@@ -29,9 +28,15 @@ int main() {
 
 	////cout << load_time_matrix[4][5] << endl;
 	////cout << stations.at(4).get_load_time() << endl;
-	//vector<Vehicle> used_vehicles;
-	//vector<Vehicle> unused_vehicles = vehicles;
+	vector<Vehicle> used_vehicles;
+	unordered_map<string, Vehicle> unused_vehicles;
+	vns::initialize(vehicles, unused_vehicles, used_vehicles);
+	cout << "用车数量：" << used_vehicles.size() << endl;
+	cout << "站点数量：" << used_vehicles.at(1).visit_order.size() << endl;
+	my_util::print_vector(used_vehicles.at(1).visit_order);
 
+	vector<string> a = { "234", "2342" };
+	my_util::print_vector(a);
 	//
 	//vector<Station>::iterator sit = stations.begin();
 	//while (sit != stations.end()) {
@@ -47,6 +52,7 @@ int main() {
 
 	//cout << stations.at(5).own_bins[2] << endl;
 
+	//initialize();
 
 
 	getchar();

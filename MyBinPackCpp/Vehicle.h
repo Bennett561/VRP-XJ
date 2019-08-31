@@ -13,7 +13,7 @@ public:
 	double get_width() const { return this->width; }
 	double get_length() const { return length; }
 	double get_area() const { return area; }
-	string get_id() const { return this->id;  }
+	string get_id() const { return this->id; }
 	double get_weight() const { return weight; }
 	double get_flagdown_fare() const { return flagdown_fare; }
 	double get_distance_fare() const { return distance_fare; }
@@ -25,7 +25,7 @@ public:
 
 	double occupancy();
 	vector<string> visit_order;
-	vector<Bin> loaded_items;
+	vector<string> loaded_items;
 private:
 	string id;
 	double width;
@@ -51,6 +51,8 @@ Vehicle::Vehicle(string id, double width, double length, double weight, double f
 	this->distance_fare = distance_fare;
 	this->loaded_area = 0;
 	this->loaded_weight = 0;
+	visit_order.clear();
+	loaded_items.clear();
 }
 
 
@@ -58,3 +60,4 @@ inline double Vehicle::occupancy()
 {
 	return this->loaded_area / this->area;
 }
+
