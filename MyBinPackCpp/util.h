@@ -130,25 +130,25 @@ namespace my_util{
 	}
 
 	//计算路程
-	double route_distance(vector<Station>& route, double *distance_matrix[num_stations]) {
+	double route_distance(vector<string>& route, double *distance_matrix[num_stations]) {
 		double d = 0;
 		for(size_t i = 0; i <route.size() - 1; i++)
 		{
-			d += distance_matrix[id_to_num(route.at(i + 1).get_id())][id_to_num(route.at(i).get_id())];
+			d += distance_matrix[id_to_num(route.at(i + 1))][id_to_num(route.at(i))];
 		}
 		return d;
 	}
 
 	//计算总用时
-	double compute_total_time(vector<Station>& route, double *load_time_matrix[num_stations]) {
+	double compute_total_time(vector<string>& route, double *load_time_matrix[num_stations], vector<Station> stations) {
 		double total_time = 0;
 
-		for each(Station s in route) {
-			total_time += s.get_load_time();
+		for each(string s in route) {
+			total_time += stations.at(id_to_num(s)).get_load_time();
 		}
 		for (size_t i = 0; i <route.size() - 1; i++)
 		{
-			total_time += load_time_matrix[id_to_num(route.at(i + 1).get_id())][id_to_num(route.at(i).get_id())];
+			total_time += load_time_matrix[id_to_num(route.at(i + 1))][id_to_num(route.at(i))];
 		}
 		return total_time;
 	}
@@ -157,7 +157,7 @@ namespace my_util{
 	void compute_route(Vehicle i, Vehicle j, double *distance_matrix[num_stations]) {
 		double cost_ori = j.get_flagdown_fare() + j.get_distance_fare() * route_distance(j.visit_order, distance_matrix) + \
 			i.get_distance_fare() * route_distance(i.visit_order, distance_matrix);
-		vector<Station> temp_vo = i.visit_order;
+		vector<string> temp_vo = i.visit_order;
 		temp_vo.insert(temp_vo.end(), j.visit_order.begin(), j.visit_order.end());
 		unique(temp_vo.begin(), temp_vo.end());
 	}

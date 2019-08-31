@@ -24,7 +24,7 @@ public:
 	void set_loaded_area(double a) { loaded_area = a; }
 
 	double occupancy();
-	vector<Station> visit_order;
+	vector<string> visit_order;
 	vector<Bin> loaded_items;
 private:
 	string id;

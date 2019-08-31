@@ -12,7 +12,6 @@ using namespace rapidjson;
 
 
 int main() {
-	cout << my_util::id_to_num("S005") << endl;
 	vector<int> a = { 3,3,4,5 };
 	vector<int> b = a;
 	b.at(0) = 7;
