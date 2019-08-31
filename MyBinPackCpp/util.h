@@ -132,7 +132,7 @@ namespace my_util {
 	}
 
 	//计算路程
-	double route_distance(const vector<string>& route, double distance_matrix[][num_stations]) {
+	double route_distance(const vector<string>& route, const double distance_matrix[][num_stations]) {
 		double d = 0;
 		for (size_t i = 0; i < route.size() - 1; i++)
 		{
@@ -142,7 +142,7 @@ namespace my_util {
 	}
 
 	//计算总用时
-	double compute_total_time(vector<string>& route, double *load_time_matrix[num_stations], vector<Station> stations) {
+	double compute_total_time(vector<string>& route, double load_time_matrix[][num_stations], vector<Station> stations) {
 		double total_time = 0;
 
 		for each(string s in route) {
