@@ -5,9 +5,11 @@
 #include <string>
 #include <functional>
 #include <unordered_map>
-#include "Vehicle.h"
-#include "Bin.h"
-#include "Station.h"
+#include "custom_hash.h"
+#include "VNS.h"
+#include "entity\Vehicle.h"
+#include "entity\Bin.h"
+#include "entity\Station.h"
 #include "rapidjson\document.h"
 #include "rapidjson\writer.h"
 #include "rapidjson\stringbuffer.h"
@@ -16,7 +18,13 @@ using namespace rapidjson;
 using namespace std;
 const int num_stations = 215;  // 站点数目
 
+extern vector<Vehicle> used_vehicles;
+extern unordered_map<string, Vehicle> unused_vehicles;
+extern unordered_map<string, Bin> bins;
+extern unordered_map<string, Station> stations;
 
+extern unordered_map<pair<string, string>, double, pair_hash> distance_matrix;
+extern unordered_map<pair<string, string>, double, pair_hash> load_time_matrix;
 namespace my_util {
 
 
@@ -87,29 +95,29 @@ namespace my_util {
 		return stations;
 	}
 
-	void get_distance_matrix(double distance_matrix[num_stations][num_stations]) {
+	void get_distance_matrix() {
 		char* matrix_json = my_util::readFileIntoString("month3\\matrix.json");
 		Document d;
 		d.Parse(matrix_json);
 		const Value& a = d["Matrix"];
 		for (SizeType i = 0; i < a.Size(); i++) {// 使用 SizeType 而不是 size_t
-			distance_matrix[i / num_stations][i % num_stations] = a[i]["distance"].GetDouble();
+			distance_matrix.insert({ make_pair(a[i]["departure_station_id"].GetString(), a[i]["arrival_station_id"].GetString()), a[i]["distance"].GetDouble() });
 		}
-		for (size_t i = 0; i < num_stations; i++) {
-			distance_matrix[i][i] = 0.0;
+		for (auto& s: stations) {
+			distance_matrix.insert({ make_pair(s.first, s.first), 0.0 });
 		}
 	}
 
-	void get_load_time_matrix(double load_time_matrix[num_stations][num_stations]) {
+	void get_load_time_matrix() {
 		char* matrix_json = my_util::readFileIntoString("month3\\matrix.json");
 		Document d;
 		d.Parse(matrix_json);
 		const Value& a = d["Matrix"];
 		for (SizeType i = 0; i < a.Size(); i++) {// 使用 SizeType 而不是 size_t
-			load_time_matrix[i / num_stations][i % num_stations] = a[i]["time"].GetDouble();
+			distance_matrix.insert({ make_pair(a[i]["departure_station_id"].GetString(), a[i]["arrival_station_id"].GetString()), a[i]["time"].GetDouble() });
 		}
-		for (size_t i = 0; i < num_stations; i++) {
-			load_time_matrix[i][i] = 0.0;
+		for (auto& s : stations) {
+			distance_matrix.insert({ make_pair(s.first, s.first), 0.0 });
 		}
 	}
 
@@ -136,41 +144,31 @@ namespace my_util {
 	}
 
 	//计算路程
-	double route_distance(const vector<string>& route, const double distance_matrix[][num_stations]) {
+	double route_distance(const vector<string>& route) {
+		if (route.size() < 2)
+			return 0;
 		double d = 0;
 		for (size_t i = 0; i < route.size() - 1; i++)
 		{
-			d += distance_matrix[id_to_num(route.at(i + 1))][id_to_num(route.at(i))];
+			d += distance_matrix.at(make_pair(route.at(i), route.at(i + 1)));  
 		}
 		return d;
 	}
 
 	//计算总用时
-	double compute_total_time(vector<string>& route,
-		double load_time_matrix[][num_stations],
-		const vector<Station>& stations) {
+	double compute_total_time(vector<string>& route) {
+		if (route.size() < 1)
+			return 0;
 		double total_time = 0;
-
 		for (string s: route) {
-			total_time += stations.at(id_to_num(s)).get_load_time();
+			total_time += stations.at(s).get_load_time();
 		}
 		for (size_t i = 0; i < route.size() - 1; i++)
 		{
-			total_time += load_time_matrix[id_to_num(route.at(i + 1))][id_to_num(route.at(i))];
+			total_time += load_time_matrix.at(make_pair(route.at(i), route.at(i + 1)));
 		}
 		return total_time;
 	}
-
-	//计算把j 并入i之后的最佳路线及成本的节省
-	//void compute_route(Vehicle i, Vehicle j, double distance_matrix[][num_stations]) {
-	//	double cost_ori = j.get_flagdown_fare() + j.get_distance_fare() * route_distance(j.visit_order, distance_matrix) + \
-	//		i.get_distance_fare() * route_distance(i.visit_order, distance_matrix);
-	//	vector<string> temp_vo = i.visit_order;
-	//	temp_vo.insert(temp_vo.end(), j.visit_order.begin(), j.visit_order.end());
-	//	unique(temp_vo.begin(), temp_vo.end());
-
-	//	//to do
-	//}
 
 	//为车辆比较定义key函数
 	typedef function<bool(pair<string, Vehicle>, pair<string, Vehicle>)> VehicleComparator;
@@ -182,31 +180,30 @@ namespace my_util {
 
 
 	//解析解
-	void resolve_sol(char* init_sol_json,
-		unordered_map<string, Vehicle>& vehicles,
-		unordered_map<string, Vehicle>& unused_vehicles,
-		vector<Vehicle>& used_vehicles,
-		const unordered_map<string, Bin>& bins,
-		unordered_map<string, Station> stations) {
+	void resolve_sol(char* init_sol_json) {
 
-		unused_vehicles = vehicles;
+		unused_vehicles = get_vehicles_data();
 		used_vehicles.clear();
 		for (auto& s : stations) {
 			s.second.pass_vehicles.clear();
 		}
 		Document d;
 		d.Parse(init_sol_json);
+
 		for (auto& m : d.GetObject()) {
 			string vid = m.name.GetString();
-			Vehicle &v = vehicles.at(vid);
+			Vehicle &v = unused_vehicles.at(vid);
 			used_vehicles.push_back(v);
-			unused_vehicles.erase(m.name.GetString());
-			v.visit_order.clear();
+			unused_vehicles.erase(vid);
+			
+			used_vehicles.back().visit_order.clear();
+			used_vehicles.back().loaded_items.clear();
 
 			for (auto& sid : m.value.GetArray()[0].GetArray()) {
 				used_vehicles.back().visit_order.push_back(sid.GetString());
 				stations.at(sid.GetString()).pass_vehicles.insert(vid);
 			}
+
 			used_vehicles.back().set_loaded_area(0);
 			used_vehicles.back().set_loaded_weight(0);
 			for (auto& bid : m.value.GetArray()[1].GetArray()) {
@@ -214,6 +211,7 @@ namespace my_util {
 				used_vehicles.back().set_loaded_weight(bins.at(bid.GetString()).get_weight() + used_vehicles.back().get_loaded_weight());
 				used_vehicles.back().loaded_items.push_back(bid.GetString());
 			}
+
 		}
 	}
 
@@ -227,20 +225,19 @@ namespace my_util {
 	}
 
 	//计算总成本
-	double cal_total_cost(vector<Vehicle>& used_vehicles, double distance_matrix[][num_stations]) {
+	double cal_total_cost() {
 		double total_cost = 0;
-		for each (auto& v in used_vehicles) {
-			total_cost += v.get_distance_fare() * route_distance(v.visit_order, distance_matrix);
+		for (auto& v : used_vehicles) {
+			total_cost += v.get_distance_fare() * route_distance(v.visit_order);
 			total_cost += v.get_flagdown_fare();
+			if (v.get_id() == "V641")
+				cout << "V641:" << v.get_distance_fare() * route_distance(v.visit_order) + v.get_flagdown_fare() << endl;
 		}
 		return total_cost;
 	}
 
 	//计算最优路线, TSP
-	double compute_tsp(vector<string>& visit_order,
-		double distance_matrix[][num_stations],
-		double load_time_matrix[][num_stations],
-		const vector<Station>& stations) {
+	double compute_tsp(vector<string>& visit_order) {
 		vector<string>::iterator it;
 		sort(visit_order.begin(), visit_order.end());
 		it = unique(visit_order.begin(), visit_order.end());
@@ -249,27 +246,24 @@ namespace my_util {
 		vector<string> best_order = visit_order;
 		double smallest_distance = 1000000000;
 		do {
-			double dist = route_distance(visit_order, distance_matrix);
+			double dist = route_distance(visit_order);
 			if (smallest_distance > dist) {
 				smallest_distance = dist;
 				best_order = visit_order;
 			}
 		} while (std::next_permutation(visit_order.begin(), visit_order.end()));
 		visit_order = best_order;
-		if (compute_total_time(visit_order, load_time_matrix, stations) <= 600)
+		if (compute_total_time(visit_order) <= 600)
 			return smallest_distance;
 		return -1;
 	}
 
 	//计算最优路线, TSP
 	double compute_tsp(vector<string>& visit_order,
-		string extra_station,
-		double distance_matrix[][num_stations],
-		double load_time_matrix[][num_stations],
-		const vector<Station>& stations) {
+		string extra_station) {
 		vector<string> record_order = visit_order;
 		visit_order.push_back(extra_station);
-		double smallest_distance = compute_tsp(visit_order, distance_matrix, load_time_matrix, stations);
+		double smallest_distance = compute_tsp(visit_order);
 		if (smallest_distance == -1) {
 			visit_order = record_order;
 			return -1;
@@ -277,4 +271,11 @@ namespace my_util {
 		return smallest_distance;
 	}
 
+	int cal_num_bins() {
+		int total_num = 0;
+		for (auto& v : used_vehicles) {
+			total_num += v.loaded_items.size();
+		}
+		return total_num;
+	}
 }

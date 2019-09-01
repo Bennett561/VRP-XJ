@@ -110,14 +110,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Bin.h" />
-    <ClInclude Include="Station.h" />
+    <ClInclude Include="bpp.h" />
+    <ClInclude Include="custom_hash.h" />
+    <ClInclude Include="entity\Bin.h" />
+    <ClInclude Include="entity\Station.h" />
+    <ClInclude Include="entity\Vehicle.h" />
+    <ClInclude Include="maxrec\MaxRectsBinPack.h" />
+    <ClInclude Include="maxrec\Rect.h" />
     <ClInclude Include="util.h" />
-    <ClInclude Include="Vehicle.h" />
     <ClInclude Include="VNS.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="test_main.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="maxrec\MaxRectsBinPack.cpp" />
+    <ClCompile Include="maxrec\Rect.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

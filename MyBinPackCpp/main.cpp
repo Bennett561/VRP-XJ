@@ -1,6 +1,6 @@
-#include "Vehicle.h"
-#include "Bin.h"
-#include "Station.h"
+#include "entity\Vehicle.h"
+#include "entity\Bin.h"
+#include "entity\Station.h"
 #include "VNS.h"
 #include "util.h" //工具函数
 #include "rapidjson\document.h"
@@ -8,29 +8,30 @@
 #include "rapidjson\stringbuffer.h"
 #include <iostream>
 #include <map>
-using namespace rapidjson;
 
+using namespace rapidjson;
+using namespace vns;
+using namespace my_util;
 
 int main() {
 
 	// 导入数据
-	unordered_map<string, Bin> bins = my_util::get_bins_data();
-	unordered_map<string, Vehicle> vehicles = my_util::get_vehicles_data();
-	unordered_map<string, Station> stations = my_util::get_stations_data();
-	double distance_matrix[num_stations][num_stations];  //"s005到s004的距离为：distance_matrix[4-1][5-1] 顺序是反的" 
-	double load_time_matrix[num_stations][num_stations]; //"s005到s004的运输时间为：load_time_matrix[4-1][5-1]" 
-	my_util::get_distance_matrix(distance_matrix);
-	my_util::get_load_time_matrix(load_time_matrix);
+	bins = get_bins_data();
+	stations = get_stations_data();
+	get_distance_matrix();
+	get_load_time_matrix();
 
 
 
 	//VNS开始
-	best_known_sol = vns::initialize(vehicles, unused_vehicles, used_vehicles, bins, stations);
-	best_known_cost = my_util::cal_total_cost(used_vehicles, distance_matrix);
+	best_known_sol = vns::initialize();
+	best_known_cost = cal_total_cost();
 	current_neighbour_cost = best_known_cost;
 	last_neighbour_cost = best_known_cost;
 	last_neighbour_sol = best_known_sol;
 
+	//cout << "195-198:" << distance_matrix.at(make_pair("S195", "S198"))<< endl;
+	cout << best_known_cost;
 	n_break = 1;  //当前迭代打散车数
 	temperature = 10000; //当前温度，即py中的T[0]
 	d_away = D_INTERVAL;  //距下次退火的迭代数，即py中的T[1]
@@ -40,8 +41,7 @@ int main() {
 		no_improve_flag = false;
 		while (!no_improve_flag) {
 			no_improve_flag = true;
-			vns::move1();
-			//cout << tabuset1.size() << endl;
+			Search(LS1);
 		}
 	}
 

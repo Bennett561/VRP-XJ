@@ -15,24 +15,42 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Vehicle.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Bin.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Station.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="util.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="VNS.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="maxrec\MaxRectsBinPack.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="maxrec\Rect.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="bpp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="entity\Bin.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="entity\Station.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="entity\Vehicle.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="custom_hash.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="test_main.cpp">
+    <ClCompile Include="maxrec\MaxRectsBinPack.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="maxrec\Rect.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
