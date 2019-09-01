@@ -5,9 +5,13 @@
 #include <string>
 #include <functional>
 #include <unordered_map>
+#include "Vehicle.h"
+#include "Bin.h"
+#include "Station.h"
 #include "rapidjson\document.h"
 #include "rapidjson\writer.h"
 #include "rapidjson\stringbuffer.h"
+
 using namespace rapidjson;
 using namespace std;
 const int num_stations = 215;  // 站点数目
@@ -17,7 +21,7 @@ namespace my_util {
 
 
 	//从文件读入到string里
-	char* readFileIntoString(char * filename)
+	char* readFileIntoString(const char * filename)
 	{
 		ifstream f(filename); //taking file as inputstream
 		string str;
@@ -142,10 +146,12 @@ namespace my_util {
 	}
 
 	//计算总用时
-	double compute_total_time(vector<string>& route, double load_time_matrix[][num_stations], vector<Station> stations) {
+	double compute_total_time(vector<string>& route,
+		double load_time_matrix[][num_stations],
+		const vector<Station>& stations) {
 		double total_time = 0;
 
-		for each(string s in route) {
+		for (string s: route) {
 			total_time += stations.at(id_to_num(s)).get_load_time();
 		}
 		for (size_t i = 0; i < route.size() - 1; i++)
@@ -156,13 +162,15 @@ namespace my_util {
 	}
 
 	//计算把j 并入i之后的最佳路线及成本的节省
-	void compute_route(Vehicle i, Vehicle j, double distance_matrix[][num_stations]) {
-		double cost_ori = j.get_flagdown_fare() + j.get_distance_fare() * route_distance(j.visit_order, distance_matrix) + \
-			i.get_distance_fare() * route_distance(i.visit_order, distance_matrix);
-		vector<string> temp_vo = i.visit_order;
-		temp_vo.insert(temp_vo.end(), j.visit_order.begin(), j.visit_order.end());
-		unique(temp_vo.begin(), temp_vo.end());
-	}
+	//void compute_route(Vehicle i, Vehicle j, double distance_matrix[][num_stations]) {
+	//	double cost_ori = j.get_flagdown_fare() + j.get_distance_fare() * route_distance(j.visit_order, distance_matrix) + \
+	//		i.get_distance_fare() * route_distance(i.visit_order, distance_matrix);
+	//	vector<string> temp_vo = i.visit_order;
+	//	temp_vo.insert(temp_vo.end(), j.visit_order.begin(), j.visit_order.end());
+	//	unique(temp_vo.begin(), temp_vo.end());
+
+	//	//to do
+	//}
 
 	//为车辆比较定义key函数
 	typedef function<bool(pair<string, Vehicle>, pair<string, Vehicle>)> VehicleComparator;
@@ -226,6 +234,47 @@ namespace my_util {
 			total_cost += v.get_flagdown_fare();
 		}
 		return total_cost;
+	}
+
+	//计算最优路线, TSP
+	double compute_tsp(vector<string>& visit_order,
+		double distance_matrix[][num_stations],
+		double load_time_matrix[][num_stations],
+		const vector<Station>& stations) {
+		vector<string>::iterator it;
+		sort(visit_order.begin(), visit_order.end());
+		it = unique(visit_order.begin(), visit_order.end());
+		int route_size = distance(visit_order.begin(), it);
+		visit_order.resize(route_size);
+		vector<string> best_order = visit_order;
+		double smallest_distance = 1000000000;
+		do {
+			double dist = route_distance(visit_order, distance_matrix);
+			if (smallest_distance > dist) {
+				smallest_distance = dist;
+				best_order = visit_order;
+			}
+		} while (std::next_permutation(visit_order.begin(), visit_order.end()));
+		visit_order = best_order;
+		if (compute_total_time(visit_order, load_time_matrix, stations) <= 600)
+			return smallest_distance;
+		return -1;
+	}
+
+	//计算最优路线, TSP
+	double compute_tsp(vector<string>& visit_order,
+		string extra_station,
+		double distance_matrix[][num_stations],
+		double load_time_matrix[][num_stations],
+		const vector<Station>& stations) {
+		vector<string> record_order = visit_order;
+		visit_order.push_back(extra_station);
+		double smallest_distance = compute_tsp(visit_order, distance_matrix, load_time_matrix, stations);
+		if (smallest_distance == -1) {
+			visit_order = record_order;
+			return -1;
+		}
+		return smallest_distance;
 	}
 
 }
