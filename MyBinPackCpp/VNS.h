@@ -22,7 +22,7 @@ unordered_map<string, Station> stations;
 unordered_map<pair<string, string>, double, pair_hash> distance_matrix;
 unordered_map<pair<string, string>, double, pair_hash> load_time_matrix;
 
-const int print_freq = 5;  // Local Search输出间隔
+const int print_freq = 50;  // Local Search输出间隔
 
 const int N_BREAK_MAX = 27;  //最大打散车数
 const double D_RATE = 0.97;  //退火速率
@@ -100,13 +100,9 @@ namespace vns
 				items1.push_back(item);
 		}
 
-
-
 		vector<string> items;
 		items.insert(items.end(), items1.begin(), items1.end());
 		items.insert(items.end(), v2.loaded_items.begin(), v2.loaded_items.end());
-
-		//cout << "Current # of bins: " << cal_num_bins() << endl;
 
 		double total_area = 0, total_weight = 0;
 		for (string bid : items) {
@@ -115,7 +111,6 @@ namespace vns
 		}
 
 		if (total_area <= v2.get_area() && total_weight <= v2.get_weight()) {
-			//to do 装箱
 			vector<Bin> Bin_items;
 			for (string bid : items)
 				Bin_items.push_back(bins.at(bid));
@@ -143,8 +138,8 @@ namespace vns
 
 				//移入V2增加的成本
 				double pre_distance = route_distance(v2.visit_order);
+				vector<string> record_order = v2.visit_order;
 				double smallest_distance = compute_tsp(v2.visit_order, s.get_id());
-
 
 				if (smallest_distance != -1) {
 					cost += (smallest_distance - pre_distance) * v2.get_distance_fare();
@@ -182,6 +177,9 @@ namespace vns
 
 						//cout << "Current # of bins: " << cal_num_bins() << endl;
 						return true;
+					}
+					else {
+						v2.visit_order = record_order;
 					}
 				}
 

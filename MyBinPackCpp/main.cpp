@@ -20,8 +20,8 @@ int main() {
 	get_distance_matrix();
 	get_load_time_matrix();
 
-
-
+	
+	
 	//VNS开始
 	best_known_sol = vns::initialize();
 	best_known_cost = cal_total_cost();

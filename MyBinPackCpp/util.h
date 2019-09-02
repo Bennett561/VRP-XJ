@@ -126,10 +126,10 @@ namespace my_util {
 		d.Parse(matrix_json);
 		const Value& a = d["Matrix"];
 		for (SizeType i = 0; i < a.Size(); i++) {// 使用 SizeType 而不是 size_t
-			distance_matrix.insert({ make_pair(a[i]["departure_station_id"].GetString(), a[i]["arrival_station_id"].GetString()), a[i]["time"].GetDouble() });
+			load_time_matrix.insert({ make_pair(a[i]["departure_station_id"].GetString(), a[i]["arrival_station_id"].GetString()), a[i]["time"].GetDouble() });
 		}
 		for (auto& s : stations) {
-			distance_matrix.insert({ make_pair(s.first, s.first), 0.0 });
+			load_time_matrix.insert({ make_pair(s.first, s.first), 0.0 });
 		}
 	}
 
@@ -298,9 +298,10 @@ namespace my_util {
 				best_order = visit_order;
 			}
 		} while (std::next_permutation(visit_order.begin(), visit_order.end()));
-		visit_order = best_order;
-		if (compute_total_time(visit_order) <= 600)
+		if (compute_total_time(visit_order) <= 600) {
+			visit_order = best_order;
 			return smallest_distance;
+		}
 		return -1;
 	}
 
