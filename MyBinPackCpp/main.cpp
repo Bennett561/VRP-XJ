@@ -33,15 +33,18 @@ int main() {
 	n_break = 1;  //当前迭代打散车数
 	temperature = 10000; //当前温度，即py中的T[0]
 	d_away = D_INTERVAL;  //距下次退火的迭代数，即py中的T[1]
-	//cout << best_known_sol << endl;
-	//for (int iteration = 0; iteration < 5; iteration++) {
-	//	cout << "当前迭代第" << iteration << "次:" << endl;
-	//	no_improve_flag = false;
-	//	while (!no_improve_flag) {
-	//		no_improve_flag = true;
-	//		Search(LS1);
-	//	}
-	//}
+
+
+	//主迭代
+	for (int iteration = 0; iteration < 5; iteration++) {
+		cout << "当前迭代第" << iteration << "次:" << endl;
+		no_improve_flag = false;
+		while (!no_improve_flag) {
+			no_improve_flag = true;
+			Search(LS1);
+			Search(LS3);
+		}
+	}
 
 
 	getchar();

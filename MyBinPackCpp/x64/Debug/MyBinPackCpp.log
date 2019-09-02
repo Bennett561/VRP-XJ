@@ -1,8 +1,8 @@
 ﻿  main.cpp
-d:\装箱\code\mybinpackcpp\mybinpackcpp\util.h(300): warning C4244: “初始化”: 从“__int64”转换到“int”，可能丢失数据
-d:\装箱\code\mybinpackcpp\mybinpackcpp\util.h(333): warning C4267: “+=”: 从“size_t”转换到“int”，可能丢失数据
-d:\装箱\code\mybinpackcpp\mybinpackcpp\vns.h(126): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-d:\装箱\code\mybinpackcpp\mybinpackcpp\vns.h(134): warning C4244: “初始化”: 从“__int64”转换到“int”，可能丢失数据
+d:\装箱\code\mybinpackcpp\mybinpackcpp\util.h(290): warning C4244: “初始化”: 从“__int64”转换到“int”，可能丢失数据
+d:\装箱\code\mybinpackcpp\mybinpackcpp\util.h(323): warning C4267: “+=”: 从“size_t”转换到“int”，可能丢失数据
+d:\装箱\code\mybinpackcpp\mybinpackcpp\vns.h(129): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+d:\装箱\code\mybinpackcpp\mybinpackcpp\vns.h(137): warning C4244: “初始化”: 从“__int64”转换到“int”，可能丢失数据
 d:\装箱\code\mybinpackcpp\mybinpackcpp\util.h(151): warning C4715: “my_util::pick_vehicle”: 不是所有的控件路径都返回值
   MyBinPackCpp.vcxproj -> D:\装箱\code\MyBinPackCpp\x64\Debug\MyBinPackCpp.exe
   MyBinPackCpp.vcxproj -> D:\装箱\code\MyBinPackCpp\x64\Debug\MyBinPackCpp.pdb (Partial PDB)

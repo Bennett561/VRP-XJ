@@ -267,6 +267,7 @@ namespace my_util {
 		for (auto item : v) {
 			cout << item << '\t';
 		}
+		cout << endl << endl;
 	}
 
 	//计算总成本

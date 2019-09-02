@@ -1,31 +1,29 @@
+#include "entity\Vehicle.h"
+#include "entity\Bin.h"
+#include "entity\Station.h"
+#include "VNS.h"
+#include "util.h" //¹¤¾ßº¯Êý
+#include "rapidjson\document.h"
+#include "rapidjson\writer.h"
+#include "rapidjson\stringbuffer.h"
 #include <iostream>
-#include <vector>
-#include <algorithm>
-#include "util.h"
-#include <string>
-#include <unordered_set>
-using namespace std;
+#include <map>
 
+using namespace rapidjson;
+using namespace vns;
+using namespace my_util;
 
 
 int main() {
-	unordered_set<int> a = { 3,3,4,5,6 };
-	auto it = a.begin();
-
-	while (it != a.end()) {
-		if (*it < 5) {
-			it = a.erase(it);
-		}
-		else {
-			it++;
-
-		}
-	}
+	vector<int> a = { 3,5,4 };
+	vector<int> &b = a;
+	my_util::print_vector(b);
+	my_util::print_vector(a);
+	b.at(1) = 888;
+	my_util::print_vector(b);
+	my_util::print_vector(a);
 
 
-	for (auto item : a) {
-		cout << item << endl;
-	}
 	getchar();
 	return 0;
 }
