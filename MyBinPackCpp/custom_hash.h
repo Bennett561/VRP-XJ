@@ -31,3 +31,11 @@ struct tuple_hash4 {
 		return h1 ^ h2 ^ h3 ^ h4;
 	}
 };
+
+//为车辆比较定义key函数
+typedef function<bool(pair<string, Vehicle>, pair<string, Vehicle>)> VehicleComparator;
+//定义按面积比较的key
+VehicleComparator cmp_by_area =
+[](pair<string, Vehicle> elem1, pair<string, Vehicle> elem2) {
+	return elem1.second.get_area() < elem2.second.get_area();
+};

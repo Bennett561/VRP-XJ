@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <fstream>
 #include <sstream>
 #include <algorithm>
@@ -13,10 +13,16 @@
 #include "rapidjson\document.h"
 #include "rapidjson\writer.h"
 #include "rapidjson\stringbuffer.h"
+#include "rapidjson\allocators.h"
+#include "rapidjson\rapidjson.h"
+#include "rapidjson\encodings.h"
+
+#define NAME(s) { s, sizeof(s) / sizeof(s[0]) - 1, kPointerInvalidIndex }
+#define INDEX(i) { #i, sizeof(#i) - 1, i }
 
 using namespace rapidjson;
 using namespace std;
-const int num_stations = 215;  // Õ¾µãÊıÄ¿
+const int num_stations = 215;  // ç«™ç‚¹æ•°ç›®
 
 extern vector<Vehicle> used_vehicles;
 extern unordered_map<string, Vehicle> unused_vehicles;
@@ -27,8 +33,7 @@ extern unordered_map<pair<string, string>, double, pair_hash> distance_matrix;
 extern unordered_map<pair<string, string>, double, pair_hash> load_time_matrix;
 namespace my_util {
 
-
-	//´ÓÎÄ¼ş¶ÁÈëµ½stringÀï
+	//ä»æ–‡ä»¶è¯»å…¥åˆ°stringé‡Œ
 	char* readFileIntoString(const char * filename)
 	{
 		ifstream f(filename); //taking file as inputstream
@@ -41,13 +46,20 @@ namespace my_util {
 		return _strdup(str.c_str());
 	}
 
+	//å†™æ–‡ä»¶
+	void writeFile(const char *filename, string s) {
+		ofstream f(filename);
+		f << s;
+		f.close();
+	}
+
 	unordered_map<string, Bin> get_bins_data() {
 		char* bin_json = my_util::readFileIntoString("month3\\bin.json");
 		Document d;
 		d.Parse(bin_json);
 		const Value& a = d["Bin"];
 		unordered_map<string, Bin> bins;
-		for (SizeType i = 0; i < a.Size(); i++) {// Ê¹ÓÃ SizeType ¶ø²»ÊÇ size_t
+		for (SizeType i = 0; i < a.Size(); i++) {// ä½¿ç”¨ SizeType è€Œä¸æ˜¯ size_t
 			Bin *temp = new Bin(a[i]["bin_id"].GetString(),
 				a[i]["bin_width"].GetDouble(),
 				a[i]["bin_length"].GetDouble(),
@@ -65,7 +77,7 @@ namespace my_util {
 		d.Parse(vehicle_json);
 		const Value& a = d["Vehicle"];
 		unordered_map<string, Vehicle> vehicles;
-		for (SizeType i = 0; i < a.Size(); i++) {// Ê¹ÓÃ SizeType ¶ø²»ÊÇ size_t
+		for (SizeType i = 0; i < a.Size(); i++) {// ä½¿ç”¨ SizeType è€Œä¸æ˜¯ size_t
 			Vehicle *temp = new Vehicle(a[i]["vehicle_id"].GetString(),
 				a[i]["vehicle_width"].GetDouble(),
 				a[i]["vehicle_length"].GetDouble(),
@@ -84,7 +96,7 @@ namespace my_util {
 		d.Parse(station_json);
 		const Value& a = d["Station"];
 		unordered_map<string, Station> stations;
-		for (SizeType i = 0; i < a.Size(); i++) {// Ê¹ÓÃ SizeType ¶ø²»ÊÇ size_t
+		for (SizeType i = 0; i < a.Size(); i++) {// ä½¿ç”¨ SizeType è€Œä¸æ˜¯ size_t
 			//Station(string id, double limit, double load_time);
 			Station *temp = new Station(a[i]["station_id"].GetString(),
 				a[i]["vehicle_limit"].GetDouble(),
@@ -100,10 +112,10 @@ namespace my_util {
 		Document d;
 		d.Parse(matrix_json);
 		const Value& a = d["Matrix"];
-		for (SizeType i = 0; i < a.Size(); i++) {// Ê¹ÓÃ SizeType ¶ø²»ÊÇ size_t
+		for (SizeType i = 0; i < a.Size(); i++) {// ä½¿ç”¨ SizeType è€Œä¸æ˜¯ size_t
 			distance_matrix.insert({ make_pair(a[i]["departure_station_id"].GetString(), a[i]["arrival_station_id"].GetString()), a[i]["distance"].GetDouble() });
 		}
-		for (auto& s: stations) {
+		for (auto& s : stations) {
 			distance_matrix.insert({ make_pair(s.first, s.first), 0.0 });
 		}
 	}
@@ -113,7 +125,7 @@ namespace my_util {
 		Document d;
 		d.Parse(matrix_json);
 		const Value& a = d["Matrix"];
-		for (SizeType i = 0; i < a.Size(); i++) {// Ê¹ÓÃ SizeType ¶ø²»ÊÇ size_t
+		for (SizeType i = 0; i < a.Size(); i++) {// ä½¿ç”¨ SizeType è€Œä¸æ˜¯ size_t
 			distance_matrix.insert({ make_pair(a[i]["departure_station_id"].GetString(), a[i]["arrival_station_id"].GetString()), a[i]["time"].GetDouble() });
 		}
 		for (auto& s : stations) {
@@ -121,14 +133,14 @@ namespace my_util {
 		}
 	}
 
-	//»ñÈ¡Êı×é³¤¶È
+	//è·å–æ•°ç»„é•¿åº¦
 	template <class T>
 	int getArrayLen(T& array)
 	{
 		return (sizeof(array) / sizeof(array[0]));
 	}
 
-	//³õÊ¼»¯Ê±Ñ¡³µ
+	//åˆå§‹åŒ–æ—¶é€‰è½¦
 	Vehicle& pick_vehicle(vector<Vehicle>& unused_vehicles, Station& station) {
 		vector<Vehicle>::iterator vit = unused_vehicles.begin();
 		while (vit != unused_vehicles.end()) {
@@ -138,29 +150,29 @@ namespace my_util {
 		}
 	}
 
-	// ½«Õ¾µãID(»ò³µÁ¾ID)×ª»¯ÎªĞòºÅ£¬Èç"S007" -> 6
+	// å°†ç«™ç‚¹ID(æˆ–è½¦è¾†ID)è½¬åŒ–ä¸ºåºå·ï¼Œå¦‚"S007" -> 6
 	int id_to_num(string id) {
 		return stoi(id.substr(1)) - 1;
 	}
 
-	//¼ÆËãÂ·³Ì
+	//è®¡ç®—è·¯ç¨‹
 	double route_distance(const vector<string>& route) {
 		if (route.size() < 2)
 			return 0;
 		double d = 0;
 		for (size_t i = 0; i < route.size() - 1; i++)
 		{
-			d += distance_matrix.at(make_pair(route.at(i), route.at(i + 1)));  
+			d += distance_matrix.at(make_pair(route.at(i), route.at(i + 1)));
 		}
 		return d;
 	}
 
-	//¼ÆËã×ÜÓÃÊ±
+	//è®¡ç®—æ€»ç”¨æ—¶
 	double compute_total_time(vector<string>& route) {
 		if (route.size() < 1)
 			return 0;
 		double total_time = 0;
-		for (string s: route) {
+		for (string s : route) {
 			total_time += stations.at(s).get_load_time();
 		}
 		for (size_t i = 0; i < route.size() - 1; i++)
@@ -170,16 +182,7 @@ namespace my_util {
 		return total_time;
 	}
 
-	//Îª³µÁ¾±È½Ï¶¨Òåkeyº¯Êı
-	typedef function<bool(pair<string, Vehicle>, pair<string, Vehicle>)> VehicleComparator;
-	//¶¨Òå°´Ãæ»ı±È½ÏµÄkey
-	VehicleComparator cmp_by_area =
-		[](pair<string, Vehicle> elem1, pair<string, Vehicle> elem2) {
-		return elem1.second.get_area() < elem2.second.get_area();
-	};
-
-
-	//½âÎö½â
+	//è§£æè§£
 	void resolve_sol(char* init_sol_json) {
 
 		unused_vehicles = get_vehicles_data();
@@ -195,7 +198,7 @@ namespace my_util {
 			Vehicle &v = unused_vehicles.at(vid);
 			used_vehicles.push_back(v);
 			unused_vehicles.erase(vid);
-			
+
 			used_vehicles.back().visit_order.clear();
 			used_vehicles.back().loaded_items.clear();
 
@@ -215,7 +218,49 @@ namespace my_util {
 		}
 	}
 
-	//´òÓ¡vector
+	char* to_char_array(const string s) {
+		char* cstr = new char[s.size() + 1];
+		strcpy_s(cstr, s.size() + 1, s.c_str());
+		return cstr;
+	}
+
+
+	//ä¿å­˜è§£
+	char *save_sol(const char* filename) {
+		Document d;
+		d.SetObject();
+		Document::AllocatorType& allocator = d.GetAllocator();
+
+		for (auto& v : used_vehicles) {
+			Value val(kArrayType);
+
+			//visit_order
+			Value vo(kArrayType);
+			for (auto s : v.visit_order) {
+				vo.PushBack(StringRef(to_char_array(s)), allocator);
+			}
+			val.PushBack(vo, allocator);
+
+			//loaded_items
+			Value li(kArrayType);
+			for (auto i : v.loaded_items) {
+				li.PushBack(StringRef(to_char_array(i)), allocator);
+			}
+			val.PushBack(li, allocator);
+			d.AddMember(StringRef(to_char_array(v.get_id())), val, allocator);
+		}
+
+		StringBuffer buffer;
+		Writer<StringBuffer> writer(buffer);
+		d.Accept(writer);
+		writeFile(filename, buffer.GetString());
+
+		return to_char_array(buffer.GetString());
+	}
+
+
+
+	//æ‰“å°vector
 	template <typename T>
 	void print_vector(vector<T> v)
 	{
@@ -224,7 +269,7 @@ namespace my_util {
 		}
 	}
 
-	//¼ÆËã×Ü³É±¾
+	//è®¡ç®—æ€»æˆæœ¬
 	double cal_total_cost() {
 		double total_cost = 0;
 		for (auto& v : used_vehicles) {
@@ -236,7 +281,7 @@ namespace my_util {
 		return total_cost;
 	}
 
-	//¼ÆËã×îÓÅÂ·Ïß, TSP
+	//è®¡ç®—æœ€ä¼˜è·¯çº¿, TSP
 	double compute_tsp(vector<string>& visit_order) {
 		vector<string>::iterator it;
 		sort(visit_order.begin(), visit_order.end());
@@ -258,7 +303,7 @@ namespace my_util {
 		return -1;
 	}
 
-	//¼ÆËã×îÓÅÂ·Ïß, TSP
+	//è®¡ç®—æœ€ä¼˜è·¯çº¿, TSP
 	double compute_tsp(vector<string>& visit_order,
 		string extra_station) {
 		vector<string> record_order = visit_order;

@@ -1,8 +1,8 @@
-#include "entity\Vehicle.h"
+ï»¿#include "entity\Vehicle.h"
 #include "entity\Bin.h"
 #include "entity\Station.h"
 #include "VNS.h"
-#include "util.h" //¹¤¾ßº¯Êı
+#include "util.h" //å·¥å…·å‡½æ•°
 #include "rapidjson\document.h"
 #include "rapidjson\writer.h"
 #include "rapidjson\stringbuffer.h"
@@ -14,8 +14,7 @@ using namespace vns;
 using namespace my_util;
 
 int main() {
-
-	// µ¼ÈëÊı¾İ
+	// å¯¼å…¥æ•°æ®
 	bins = get_bins_data();
 	stations = get_stations_data();
 	get_distance_matrix();
@@ -23,27 +22,26 @@ int main() {
 
 
 
-	//VNS¿ªÊ¼
+	//VNSå¼€å§‹
 	best_known_sol = vns::initialize();
 	best_known_cost = cal_total_cost();
 	current_neighbour_cost = best_known_cost;
 	last_neighbour_cost = best_known_cost;
 	last_neighbour_sol = best_known_sol;
 
-	//cout << "195-198:" << distance_matrix.at(make_pair("S195", "S198"))<< endl;
-	cout << best_known_cost;
-	n_break = 1;  //µ±Ç°µü´ú´òÉ¢³µÊı
-	temperature = 10000; //µ±Ç°ÎÂ¶È£¬¼´pyÖĞµÄT[0]
-	d_away = D_INTERVAL;  //¾àÏÂ´ÎÍË»ğµÄµü´úÊı£¬¼´pyÖĞµÄT[1]
-
-	for (int iteration = 0; iteration < 5; iteration++) {
-		cout << "µ±Ç°µü´úµÚ" << iteration << "´Î:" << endl;
-		no_improve_flag = false;
-		while (!no_improve_flag) {
-			no_improve_flag = true;
-			Search(LS1);
-		}
-	}
+	cout << best_known_cost << endl;;
+	n_break = 1;  //å½“å‰è¿­ä»£æ‰“æ•£è½¦æ•°
+	temperature = 10000; //å½“å‰æ¸©åº¦ï¼Œå³pyä¸­çš„T[0]
+	d_away = D_INTERVAL;  //è·ä¸‹æ¬¡é€€ç«çš„è¿­ä»£æ•°ï¼Œå³pyä¸­çš„T[1]
+	//cout << best_known_sol << endl;
+	//for (int iteration = 0; iteration < 5; iteration++) {
+	//	cout << "å½“å‰è¿­ä»£ç¬¬" << iteration << "æ¬¡:" << endl;
+	//	no_improve_flag = false;
+	//	while (!no_improve_flag) {
+	//		no_improve_flag = true;
+	//		Search(LS1);
+	//	}
+	//}
 
 
 	getchar();

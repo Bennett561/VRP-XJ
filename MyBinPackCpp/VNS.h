@@ -89,8 +89,7 @@ namespace vns
 		Vehicle& v1,
 		Vehicle& v2) {
 
-
-		if (tabuset1.find(make_tuple(s.get_id(), v1.get_id(), v2.get_id())) != tabuset1.end())
+		if (tabuset1.find(make_tuple(v1.get_id(), v2.get_id(), s.get_id())) != tabuset1.end())
 			return false;
 		vector<string> items1;
 		for (string item : v1.loaded_items) {
@@ -175,8 +174,7 @@ namespace vns
 						if (cost < best_known_cost) {
 							cout << "New Best Cost:" << cost << endl;
 							best_known_cost = cost;
-							//to do save sol
-							//best_known_sol = save_sol("init_sol");
+							best_known_sol = save_sol("result\\init_sol.json");
 						}
 
 						cout << "Current # of bins: " << cal_num_bins() << endl;
