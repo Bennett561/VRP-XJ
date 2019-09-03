@@ -3,7 +3,6 @@
 #include <sstream>
 #include <algorithm>
 #include <string>
-#include <functional>
 #include <unordered_map>
 #include "custom_hash.h"
 #include "VNS.h"
@@ -16,9 +15,6 @@
 #include "rapidjson\allocators.h"
 #include "rapidjson\rapidjson.h"
 #include "rapidjson\encodings.h"
-
-#define NAME(s) { s, sizeof(s) / sizeof(s[0]) - 1, kPointerInvalidIndex }
-#define INDEX(i) { #i, sizeof(#i) - 1, i }
 
 using namespace rapidjson;
 using namespace std;
@@ -224,6 +220,7 @@ namespace my_util {
 
 		for (auto& m : d.GetObject()) {
 			string vid = m.name.GetString();
+			//可能有问题
 			Vehicle &v = unused_vehicles.at(vid);
 			used_vehicles.push_back(v);
 			unused_vehicles.erase(vid);
@@ -317,6 +314,8 @@ namespace my_util {
 
 	//计算最优路线, TSP
 	double compute_tsp(vector<string>& visit_order) {
+		if (visit_order.size() < 2)
+			return 0;
 		vector<string>::iterator it;
 		sort(visit_order.begin(), visit_order.end());
 		it = unique(visit_order.begin(), visit_order.end());
@@ -358,4 +357,19 @@ namespace my_util {
 		}
 		return total_num;
 	}
+
+	//将bid向量转化为bin向量
+	void bid_to_bin(vector<string> &b_id, vector<Bin> &b_bin) {
+		for (string id : b_id) {
+			b_bin.push_back(bins.at(id));
+		}
+	}
+
+	void bid_to_bin(vector<string>::iterator &b_id_begin, vector<string>::iterator &b_id_end, vector<Bin> &b_bin) {
+		auto it = b_id_begin;
+		while (it != b_id_end) {
+			b_bin.push_back(bins.at(*it));
+		}
+	}
+
 }

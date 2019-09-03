@@ -47,27 +47,17 @@ int main() {
 		no_improve_flag = false;
 		while (!no_improve_flag) {
 			no_improve_flag = true;
-			Search(LS1);
-			//Search(LS3);
+		/*	Search(LS1);
+			Search(LS2);
+			Search(LS3);*/
+
 		}
 	}
 	duration = (clock() - start_time) / (double)CLOCKS_PER_SEC;
 	cout << "LS1用时：" << duration << " s." << endl;
 
-	start_time = clock();
-	//主迭代
-	for (int iteration = 0; iteration < 5; iteration++) {
-		cout << "当前迭代第" << iteration << "次:" << endl;
-		no_improve_flag = false;
-		while (!no_improve_flag) {
-			no_improve_flag = true;
-			//Search(LS1);
-			Search(LS3);
-		}
-	}
-	duration = (clock() - start_time) / (double)CLOCKS_PER_SEC;
-	cout << "LS3用时：" << duration << " s." << endl;
 
 	getchar();
+	system("pause");
 	return 0;
 }

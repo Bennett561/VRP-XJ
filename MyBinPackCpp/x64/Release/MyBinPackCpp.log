@@ -1,0 +1,15 @@
+﻿  main.cpp
+d:\装箱\code\mybinpackcpp\mybinpackcpp\util.h(323): warning C4244: “初始化”: 从“__int64”转换到“int”，可能丢失数据
+d:\装箱\code\mybinpackcpp\mybinpackcpp\util.h(357): warning C4267: “+=”: 从“size_t”转换到“int”，可能丢失数据
+d:\装箱\code\mybinpackcpp\mybinpackcpp\VNS.h(114): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+d:\装箱\code\mybinpackcpp\mybinpackcpp\VNS.h(122): warning C4244: “初始化”: 从“__int64”转换到“int”，可能丢失数据
+  MaxRectsBinPack.cpp
+maxrec\MaxRectsBinPack.cpp(109): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
+maxrec\MaxRectsBinPack.cpp(171): warning C4244: “+=”: 从“double”转换到“float”，可能丢失数据
+maxrec\MaxRectsBinPack.cpp(173): warning C4244: “return”: 从“double”转换到“float”，可能丢失数据
+  Rect.cpp
+  正在生成代码
+  All 3289 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  已完成代码的生成
+  MyBinPackCpp.vcxproj -> D:\装箱\code\MyBinPackCpp\x64\Release\MyBinPackCpp.exe
+  MyBinPackCpp.vcxproj -> D:\装箱\code\MyBinPackCpp\x64\Release\MyBinPackCpp.pdb (Full PDB)

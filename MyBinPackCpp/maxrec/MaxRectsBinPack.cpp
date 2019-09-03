@@ -92,7 +92,7 @@ void MaxRectsBinPack::Insert(std::vector<RectSize> &rects, std::vector<Rect> &ds
 	{
 		double bestScore1 = std::numeric_limits<double>::max();
 		double bestScore2 = std::numeric_limits<double>::max();
-		double bestRectIndex = -1;
+		int bestRectIndex = -1;
 		Rect bestNode;
 
 		for(size_t i = 0; i < rects.size(); ++i)
@@ -166,11 +166,11 @@ Rect MaxRectsBinPack::ScoreRect(double width, double height, FreeRectChoiceHeuri
 /// Computes the ratio of used surface area.
 float MaxRectsBinPack::Occupancy() const
 {
-	unsigned long usedSurfaceArea = 0;
+	float usedSurfaceArea = 0;
 	for(size_t i = 0; i < usedRectangles.size(); ++i)
 		usedSurfaceArea += usedRectangles[i].width * usedRectangles[i].height;
 
-	return (float)usedSurfaceArea / (binWidth * binHeight);
+	return usedSurfaceArea / (binWidth * binHeight);
 }
 
 Rect MaxRectsBinPack::FindPositionForNewNodeBottomLeft(double width, double height, double &bestY, double &bestX) const

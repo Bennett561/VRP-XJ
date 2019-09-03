@@ -12,8 +12,6 @@ public:
 	string get_id() const { return this->id; }
 	double get_x() const { return x; }
 	double get_y() const { return y; }
-	double get_real_x() const { return real_x; }
-	double get_real_y() const { return real_y; }
 	double get_length() const { return length; }
 	double get_width() const { return width; }
 	double get_area() const { return area; }
@@ -35,8 +33,6 @@ private:
 	string station;
 	double x;
 	double y;
-	double real_x;
-	double real_y;
 	double real_length;
 	double real_width;
 };
@@ -53,8 +49,6 @@ Bin::Bin(string id, double width, double length, double weight, string station)
 	this->station = station;
 	x = 0;
 	y = 0;
-	real_x = 0;
-	real_y = 0;
 	if (this->length > this->width)
 		this->rotate();
 }
@@ -66,8 +60,6 @@ inline void Bin::rotate()
 
 inline void Bin::update()
 {
-	real_x = x;
-	real_y = y;
 	real_length = length;
 	real_width = width;
 }

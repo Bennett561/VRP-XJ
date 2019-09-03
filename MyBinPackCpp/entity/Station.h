@@ -14,12 +14,18 @@ public:
 	string get_id() const { return id; }
 	vector<Bin> own_bins;   //该站点所有箱子
 	set<string> pass_vehicles;
+	void discard(string vid); //从pass_vehicles中去除箱子
 private:
 	string id;
 	double limit;
 	double load_time;
 
 };
+
+inline void Station::discard(string vid) { //从pass_vehicles中去除箱子
+	if (pass_vehicles.find(vid) != pass_vehicles.end())
+		pass_vehicles.erase(vid);
+}
 
 Station::Station(string id, double limit, double load_time)
 {
