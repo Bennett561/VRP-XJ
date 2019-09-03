@@ -30,6 +30,8 @@ extern unordered_map<pair<string, string>, double, pair_hash> distance_matrix;
 extern unordered_map<pair<string, string>, double, pair_hash> load_time_matrix;
 namespace my_util {
 
+
+
 	//从文件读入到string里
 	char* readFileIntoString(const char * filename)
 	{
@@ -56,6 +58,15 @@ namespace my_util {
 	void add_vector(vector<T> &dest_v, vector<T> &v1, vector<T>& v2) {
 		dest_v.insert(dest_v.end(), v1.begin(), v1.end());
 		dest_v.insert(dest_v.end(), v2.begin(), v2.end());
+	}
+
+	//移除vector第x个元素
+	template<typename T>
+	inline void VectorRemoveAt(vector<T>&list, size_t idx)
+	{
+		if (idx < list.size())
+			list[idx] = list.back();
+		list.pop_back();
 	}
 
 	unordered_map<string, Bin> get_bins_data() {
@@ -365,11 +376,17 @@ namespace my_util {
 		}
 	}
 
-	void bid_to_bin(vector<string>::iterator &b_id_begin, vector<string>::iterator &b_id_end, vector<Bin> &b_bin) {
-		auto it = b_id_begin;
-		while (it != b_id_end) {
-			b_bin.push_back(bins.at(*it));
+	void bid_to_bin(vector<string>& bid,int b_id_begin, int b_id_end, vector<Bin> &b_bin) {
+		for (size_t i = b_id_begin; i < b_id_end; ++i) {
+			b_bin.push_back(bins.at(bid[i]));
 		}
+	}
+
+	bool comp_veh_costper(const Vehicle &v1, const Vehicle &v2)
+	{
+		double costper1 = v1.get_loaded_area() / (v1.get_flagdown_fare() + v1.get_distance_fare()*route_distance(v1.visit_order));
+		double costper2 = v2.get_loaded_area() / (v2.get_flagdown_fare() + v2.get_distance_fare()*route_distance(v2.visit_order));
+		return costper1 > costper2;
 	}
 
 }

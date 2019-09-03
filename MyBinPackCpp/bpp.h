@@ -21,6 +21,7 @@ public:
 	bool checkbpp_sort();
 	void clear_bin();
 	void add_bins(vector<Bin>& bins);
+	void add_bin(Bin& bin);
 	void return_seq(vector<string>& loaded_items);
 	void update_backup();
 	void restore();
@@ -38,6 +39,10 @@ void BPPManager::add_bins(vector<Bin>& bins) {
 	else {
 		own_bins.insert(own_bins.end(), bins.begin(), bins.end());
 	}
+}
+
+void BPPManager::add_bin(Bin& bin) {
+	own_bins.push_back(bin);
 }
 
 void BPPManager::update_backup() {

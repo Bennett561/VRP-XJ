@@ -11,6 +11,7 @@
 #include <iostream>
 #include <tuple>
 #include <unordered_set>
+#include <ctime>
 
 using namespace rapidjson;
 using namespace my_util;
@@ -22,7 +23,7 @@ unordered_map<string, Station> stations;
 unordered_map<pair<string, string>, double, pair_hash> distance_matrix;
 unordered_map<pair<string, string>, double, pair_hash> load_time_matrix;
 
-const int print_freq = 600;  // Local Search输出间隔
+const int print_freq = 100;  // Local Search输出间隔
 
 const int N_BREAK_MAX = 27;  //最大打散车数
 const double D_RATE = 0.97;  //退火速率
@@ -107,7 +108,7 @@ namespace vns
 			BPPManager M(v2.get_width(), v2.get_length());
 			M.add_bins(Bin_items);
 
-			if (M.checkbpp()) {
+			if (M.checkbpp_sort()) {
 				double cost = current_neighbour_cost;
 				//移出V1节省的成本
 				vector<string> &route = v1.visit_order;
@@ -377,7 +378,7 @@ namespace vns
 				}
 				BPPManager M1(v1.get_width(), v1.get_length());
 				M1.add_bins(Bin_total_items1);
-				if (M1.checkbpp()) {
+				if (M1.checkbpp_sort()) {
 					vector<string> total_items2(items2_left);
 					total_items2.insert(total_items2.end(), items1.begin(), items1.end());
 					double total_area2 = v2.get_loaded_area() - s2_area + s1_area;
@@ -389,7 +390,7 @@ namespace vns
 						}
 						BPPManager M2(v2.get_width(), v2.get_length());
 						M2.add_bins(Bin_total_items2);
-						if (M2.checkbpp()) {
+						if (M2.checkbpp_sort()) {
 							double cost = current_neighbour_cost;
 							vector<string> curr_route1 = { sid2 };
 							if (v1.visit_order.size() > 1) {
@@ -564,18 +565,7 @@ namespace vns
 				M.update_backup();
 				double total_area = v2.get_loaded_area();
 				double total_weight = v2.get_loaded_weight();
-				/*		temp_item_sequence = [b.id for b in M.bins]
-							temp_visit_order = V2.visit_order
-							left = 0
-							right = len(V1.loaded_items) - 1
-							while left <= right:
-						pos = int((left + right) / 2)
-							A = total_area + sum(bins[bid].area for bid in V1.loaded_items[:pos + 1])
-							W = total_weight + sum(bins[bid].weight for bid in V1.loaded_items[:pos + 1])
-							for item in V1.loaded_items[:pos + 1] :
-								if stations[bins[item].station].limit < V2.length :
-									right = pos - 1
-									break*/
+
 				vector<string> temp_item_sequence;
 				vector<string> temp_visit_order = v2.visit_order;
 				M.return_seq(temp_item_sequence);
@@ -594,7 +584,11 @@ namespace vns
 					}
 					if (right != pos - 1) {
 						if (A <= v2.get_area() && W <= v2.get_weight()) {
-							v2.visit_order.insert(v2.visit_order.end(), v1.loaded_items.begin(), v1.loaded_items.begin() + pos + 1);
+							vector<string> temp_order;
+							for (size_t j = 0; j < pos + 1; ++j) {
+								temp_order.push_back(bins.at(v1.loaded_items.at(j)).get_station());
+							}
+							v2.visit_order.insert(v2.visit_order.end(), temp_order.begin(), temp_order.end());
 							double smallest_dist = compute_tsp(v2.visit_order);
 							if (smallest_dist == -1) {
 								right = pos - 1;
@@ -602,7 +596,7 @@ namespace vns
 							}
 							else {
 								vector<Bin> Bin_pos;
-								bid_to_bin(v1.loaded_items.begin(), v1.loaded_items.begin() + pos + 1, Bin_pos);
+								bid_to_bin(v1.loaded_items, 0, pos + 1, Bin_pos);
 								M.add_bins(Bin_pos);
 								if (M.checkbpp()) {
 									temp_visit_order = v2.visit_order;
@@ -661,9 +655,96 @@ namespace vns
 			}
 			return true;
 		}
-		else {
-			return false;
+		return false;
+	}
+
+	void jump_neighbour()
+	{
+		sort(used_vehicles.begin(), used_vehicles.end(), comp_veh_costper);
+		int num_random = 3;
+		vector<string> unpacked_bins;
+		for (int i = 0; i < n_break; i++)//删除性价比低的used_vehicle
+		{
+			unpacked_bins.insert(unpacked_bins.end(), used_vehicles.back().loaded_items.begin(), used_vehicles.back().loaded_items.end());
+			for (auto &s1id : used_vehicles.back().visit_order)
+			{
+				stations.at(s1id).pass_vehicles.erase(used_vehicles.back().get_id());
+			}
+			used_vehicles.back().loaded_items.clear();
+			used_vehicles.back().visit_order.clear();
+			used_vehicles.back().set_loaded_area(0);
+			used_vehicles.back().set_loaded_weight(0);
+			unused_vehicles.insert({ used_vehicles.back().get_id(), used_vehicles.back() });
+			used_vehicles.pop_back();
 		}
+		srand((int)time(NULL));
+		for (int i = 0; i < num_random; i++)//随机删除used_vehicle
+		{
+			size_t index = rand() % used_vehicles.size();
+			unpacked_bins.insert(unpacked_bins.end(), used_vehicles[index].loaded_items.begin(), used_vehicles[index].loaded_items.end());
+			for (auto &s1id : used_vehicles[index].visit_order)
+			{
+				stations.at(s1id).pass_vehicles.erase(used_vehicles[index].get_id());
+			}
+			used_vehicles[index].loaded_items.clear();
+			used_vehicles[index].visit_order.clear();
+			used_vehicles[index].set_loaded_area(0);
+			used_vehicles[index].set_loaded_weight(0);
+			unused_vehicles.insert({ used_vehicles[index].get_id(), used_vehicles[index] });
+			VectorRemoveAt(used_vehicles, index);
+		}
+
+		while (unpacked_bins.size() > 0)
+		{
+			size_t index = rand() % unused_vehicles.size();
+			Vehicle& newv = (*next(unused_vehicles.begin(), index)).second;
+			BPPManager M(newv.get_width(), newv.get_length());
+			vector<string> packed_bins;
+			for (auto &binid : unpacked_bins)
+			{
+				string stationid = bins.at(binid).get_station();
+				M.update_backup();
+				if (stations.at(stationid).get_limit() < newv.get_length())
+					continue;
+				vector<string> temp_visit_order = newv.visit_order;
+				double smallest_distance;
+				if (find(newv.visit_order.begin(), newv.visit_order.end(), stationid) == newv.visit_order.end())
+				{
+					if (newv.visit_order.size() >= 4)
+						continue;
+					smallest_distance = compute_tsp(temp_visit_order, stationid);
+					if (smallest_distance == -1)
+						continue;
+				}
+				if ((newv.get_loaded_area() + bins.at(binid).get_area()) < newv.get_area() && (newv.get_loaded_weight() + bins.at(binid).get_weight()) < newv.get_weight())
+				{
+					M.add_bin(bins.at(binid));
+					if (M.checkbpp_sort())
+					{
+						newv.set_loaded_area(newv.get_loaded_area() + bins.at(binid).get_area());
+						newv.set_loaded_weight(newv.get_loaded_weight() + bins.at(binid).get_weight());
+						if (find(newv.visit_order.begin(), newv.visit_order.end(), stationid) == newv.visit_order.end())
+							newv.visit_order = temp_visit_order;
+						stations.at(stationid).pass_vehicles.insert(newv.get_id());
+						packed_bins.push_back(binid);
+						continue;
+					}
+				}
+				M.restore();
+
+			}
+			M.return_seq(newv.loaded_items);  ////ls2遍历要改！！！！！！！！！！！！
+			for (auto &bid : packed_bins)
+				unpacked_bins.erase(find(unpacked_bins.begin(), unpacked_bins.end(), bid));
+			if (newv.visit_order.size() > 0)
+			{
+				used_vehicles.push_back(newv);
+				unused_vehicles.erase(newv.get_id());
+			}
+
+		}
+
+		while (split());
 	}
 
 }

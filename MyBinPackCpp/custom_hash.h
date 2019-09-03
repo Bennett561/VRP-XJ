@@ -9,6 +9,8 @@ extern unordered_map<string, Bin> bins;
 extern unordered_map<string, Station> stations;
 
 
+
+
 bool comp_desca(const Bin &a, const Bin &b)
 {
 	return a.get_area() > b.get_area();
