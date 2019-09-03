@@ -23,6 +23,7 @@
 using namespace rapidjson;
 using namespace std;
 const int num_stations = 215;  // 站点数目
+const char* month = "month3";
 
 extern vector<Vehicle> used_vehicles;
 extern unordered_map<string, Vehicle> unused_vehicles;
@@ -53,8 +54,20 @@ namespace my_util {
 		f.close();
 	}
 
+
+	//连接vector
+	template <typename T>
+	void add_vector(vector<T> &dest_v, vector<T> &v1, vector<T>& v2) {
+		dest_v.insert(dest_v.end(), v1.begin(), v1.end());
+		dest_v.insert(dest_v.end(), v2.begin(), v2.end());
+	}
+
 	unordered_map<string, Bin> get_bins_data() {
-		char* bin_json = my_util::readFileIntoString("month3\\bin.json");
+		char *filename = new char[17];
+		strcpy_s(filename, 17, month);
+		strcat_s(filename, 17, "\\bin.json");
+		char* bin_json = my_util::readFileIntoString(filename);
+		delete filename;
 		Document d;
 		d.Parse(bin_json);
 		const Value& a = d["Bin"];
@@ -72,7 +85,11 @@ namespace my_util {
 	}
 
 	unordered_map<string, Vehicle> get_vehicles_data() {
-		char* vehicle_json = my_util::readFileIntoString("month3\\vehicle.json");
+		char *filename = new char[21];
+		strcpy_s(filename, 21, month);
+		strcat_s(filename, 21, "\\vehicle.json");
+		char* vehicle_json = my_util::readFileIntoString(filename);
+		delete filename;
 		Document d;
 		d.Parse(vehicle_json);
 		const Value& a = d["Vehicle"];
@@ -91,7 +108,11 @@ namespace my_util {
 	}
 
 	unordered_map<string, Station> get_stations_data() {
-		char* station_json = my_util::readFileIntoString("month3\\station.json");
+		char *filename = new char[21];
+		strcpy_s(filename, 21, month);
+		strcat_s(filename, 21, "\\station.json");
+		char* station_json = my_util::readFileIntoString(filename);
+		delete filename;
 		Document d;
 		d.Parse(station_json);
 		const Value& a = d["Station"];
@@ -108,7 +129,11 @@ namespace my_util {
 	}
 
 	void get_distance_matrix() {
-		char* matrix_json = my_util::readFileIntoString("month3\\matrix.json");
+		char *filename = new char[21];
+		strcpy_s(filename, 21, month);
+		strcat_s(filename, 21, "\\matrix.json");
+		char* matrix_json = my_util::readFileIntoString(filename);
+		delete filename;
 		Document d;
 		d.Parse(matrix_json);
 		const Value& a = d["Matrix"];
@@ -121,7 +146,11 @@ namespace my_util {
 	}
 
 	void get_load_time_matrix() {
-		char* matrix_json = my_util::readFileIntoString("month3\\matrix.json");
+		char *filename = new char[21];
+		strcpy_s(filename, 21, month);
+		strcat_s(filename, 21, "\\matrix.json");
+		char* matrix_json = my_util::readFileIntoString(filename);
+		delete filename;
 		Document d;
 		d.Parse(matrix_json);
 		const Value& a = d["Matrix"];
@@ -218,10 +247,16 @@ namespace my_util {
 		}
 	}
 
+	//convert string to char array
 	char* to_char_array(const string s) {
 		char* cstr = new char[s.size() + 1];
 		strcpy_s(cstr, s.size() + 1, s.c_str());
 		return cstr;
+	}
+
+	//faster version, needs to declare size outside;
+	void to_char_array(const string s, char* array) {
+		strcpy_s(array, s.size() + 1, s.c_str());
 	}
 
 
@@ -276,8 +311,6 @@ namespace my_util {
 		for (auto& v : used_vehicles) {
 			total_cost += v.get_distance_fare() * route_distance(v.visit_order);
 			total_cost += v.get_flagdown_fare();
-			if (v.get_id() == "V641")
-				cout << "V641:" << v.get_distance_fare() * route_distance(v.visit_order) + v.get_flagdown_fare() << endl;
 		}
 		return total_cost;
 	}

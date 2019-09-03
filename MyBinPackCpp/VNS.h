@@ -22,7 +22,7 @@ unordered_map<string, Station> stations;
 unordered_map<pair<string, string>, double, pair_hash> distance_matrix;
 unordered_map<pair<string, string>, double, pair_hash> load_time_matrix;
 
-const int print_freq = 50;  // Local Search输出间隔
+const int print_freq = 600;  // Local Search输出间隔
 
 const int N_BREAK_MAX = 27;  //最大打散车数
 const double D_RATE = 0.97;  //退火速率
@@ -47,45 +47,30 @@ namespace vns
 {
 	//初始化
 	char* initialize() {
-		char* init_sol_json = readFileIntoString("result\\month3init_sol.json");
+		char* init_sol_json = readFileIntoString("result\\init_sol.json");
 		resolve_sol(init_sol_json);
 		return init_sol_json;
 	}
 
+	template <typename T>
+	void update_single_tabuset(Vehicle v1, Vehicle v2, T tabuset) {
+		auto it = tabuset.begin();
+		while (it != tabuset.end()) {
+			if (get<0>(*it) == v1.get_id() || get<1>(*it) == v1.get_id() \
+				|| get<0>(*it) == v2.get_id() || get<1>(*it) == v2.get_id()) {
+				it = tabuset.erase(it);
+			}
+			else {
+				it++;
+			}
+		}
+	}
+
 
 	void update_tabusets(Vehicle v1, Vehicle v2) {
-		auto it1 = tabuset1.begin();
-		while (it1 != tabuset1.end()) {
-			if (get<0>(*it1) == v1.get_id() || get<1>(*it1) == v1.get_id() \
-				|| get<0>(*it1) == v2.get_id() || get<1>(*it1) == v2.get_id()) {
-				it1 = tabuset1.erase(it1);
-			}
-			else {
-				it1++;
-			}
-		}
-
-		auto it2 = tabuset2.begin();
-		while (it2 != tabuset2.end()) {
-			if (get<0>(*it2) == v1.get_id() || get<1>(*it2) == v1.get_id() \
-				|| get<0>(*it2) == v2.get_id() || get<1>(*it2) == v2.get_id()) {
-				it2 = tabuset2.erase(it2);
-			}
-			else {
-				it2++;
-			}
-		}
-
-		auto it3 = tabuset3.begin();
-		while (it3 != tabuset3.end()) {
-			if (get<0>(*it3) == v1.get_id() || get<1>(*it3) == v1.get_id() \
-				|| get<0>(*it3) == v2.get_id() || get<1>(*it3) == v2.get_id()) {
-				it3 = tabuset3.erase(it3);
-			}
-			else {
-				it3++;
-			}
-		}
+		update_single_tabuset(v1, v2, tabuset1);
+		update_single_tabuset(v1, v2, tabuset2);
+		update_single_tabuset(v1, v2, tabuset3);
 	}
 
 	bool move1(Station& s,
@@ -100,8 +85,7 @@ namespace vns
 				items1.push_back(item);
 		}
 
-		vector<string> items;
-		items.insert(items.end(), items1.begin(), items1.end());
+		vector<string> items(items1);
 		items.insert(items.end(), v2.loaded_items.begin(), v2.loaded_items.end());
 
 		double total_area = 0, total_weight = 0;
@@ -151,11 +135,9 @@ namespace vns
 						cout << "New Neighbour Best:" << cost << endl;
 						v1.visit_order.erase(find(v1.visit_order.begin(), v1.visit_order.end(), s.get_id()));
 
-						for (auto item : items1) {
+						for (string item : items1) {
 							v1.loaded_items.erase(find(v1.loaded_items.begin(), v1.loaded_items.end(), item));
 						}
-
-						//cout << "Current # of bins: " << cal_num_bins() << endl;
 
 						v1.set_loaded_area(v1.get_loaded_area() - total_area + v2.get_loaded_area());
 						v1.set_loaded_weight(v1.get_loaded_weight() - total_weight + v2.get_loaded_weight());
@@ -182,7 +164,6 @@ namespace vns
 						v2.visit_order = record_order;
 					}
 				}
-
 			}
 		}
 		tabuset1.insert(make_tuple(v1.get_id(), v2.get_id(), s.get_id()));
@@ -228,9 +209,10 @@ namespace vns
 				s2_weight += bins.at(bid).get_weight();
 			}
 
-			vector<string> total_items1;
-			total_items1.insert(total_items1.end(), items1_left.begin(), items1_left.end());
+			vector<string> total_items1(items1_left);
 			total_items1.insert(total_items1.end(), items2.begin(), items2.end());
+
+
 			double total_area1 = v1.get_loaded_area() - s1_area + s2_area;
 			double total_weight1 = v1.get_loaded_weight() - s1_weight + s2_weight;
 			if (total_area1 <= v1.get_area() && total_weight1 <= v1.get_weight()) {
@@ -241,8 +223,7 @@ namespace vns
 				BPPManager M1(v1.get_width(), v1.get_length());
 				M1.add_bins(Bin_total_items1);
 				if (M1.checkbpp()) {
-					vector<string> total_items2;
-					total_items2.insert(total_items2.end(), items2_left.begin(), items2_left.end());
+					vector<string> total_items2(items2_left);
 					total_items2.insert(total_items2.end(), items1.begin(), items1.end());
 					double total_area2 = v2.get_loaded_area() - s2_area + s1_area;
 					double total_weight2 = v2.get_loaded_weight() - s2_weight + s1_weight;
@@ -319,14 +300,14 @@ namespace vns
 			if (count % print_freq == 0)
 				cout << "local search 1 on going: " << count << endl;
 			count++;
-			for (auto &sid : v1.visit_order) {
+			for (string sid : v1.visit_order) {
 				Station& s = stations.at(sid);
 				vector<Vehicle> dest_vs;
-				for (auto& v : used_vehicles) {
+				for (Vehicle& v : used_vehicles) {
 					if (v.get_id() != v1.get_id() && v.get_length() <= s.get_limit())
 						dest_vs.push_back(v);
 				}
-				for (auto& v2 : dest_vs) {
+				for (Vehicle& v2 : dest_vs) {
 					if (move1(s, v1, v2))
 						return true;
 				}
