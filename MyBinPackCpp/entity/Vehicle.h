@@ -9,7 +9,15 @@ using namespace std;
 class Vehicle
 {
 public:
-	Vehicle(string id, double width, double length, double weight, double flagdown_fare, double distance_fare);
+	Vehicle(string id, double w, double l, double wt, double fd_fare, double dist_fare)
+		:id(id), width(w), length(l), weight(wt), flagdown_fare(fd_fare), distance_fare(dist_fare)
+	{
+		this->area = width * length;
+		this->loaded_area = 0;
+		this->loaded_weight = 0;
+		visit_order.clear();
+		loaded_items.clear();
+	}
 	double get_width() const { return this->width; }
 	double get_length() const { return length; }
 	double get_area() const { return area; }
@@ -41,7 +49,7 @@ private:
 
 };
 
-bool Vehicle::operator==(const Vehicle &v)
+inline bool Vehicle::operator==(const Vehicle &v)
 {
 	if (this->id != v.get_id())
 	{
@@ -50,7 +58,7 @@ bool Vehicle::operator==(const Vehicle &v)
 	return true;
 }
 
-bool Vehicle::operator!=(const Vehicle &v)
+inline bool Vehicle::operator!=(const Vehicle &v)
 {
 	if (this->id != v.get_id())
 	{
@@ -58,22 +66,6 @@ bool Vehicle::operator!=(const Vehicle &v)
 	}
 	return false;
 }
-
-Vehicle::Vehicle(string id, double width, double length, double weight, double flagdown_fare, double distance_fare)
-{
-	this->id = id;
-	this->width = width;
-	this->length = length;
-	this->area = width * length;
-	this->weight = weight;
-	this->flagdown_fare = flagdown_fare;
-	this->distance_fare = distance_fare;
-	this->loaded_area = 0;
-	this->loaded_weight = 0;
-	visit_order.clear();
-	loaded_items.clear();
-}
-
 
 inline double Vehicle::occupancy()
 {

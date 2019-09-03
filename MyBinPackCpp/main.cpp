@@ -45,7 +45,7 @@ int main() {
 	//主迭代
 	for (int iteration = 0; iteration < 1000; iteration++) {
 		cout << "当前迭代第" << iteration << "次:" << endl;
-		cout << "当前最优：" << best_known_cost << endl;
+		cout << "当前最优成本：" << best_known_cost << endl;
 		no_improve_flag = false;
 		while (!no_improve_flag) {
 			no_improve_flag = true;
@@ -83,7 +83,7 @@ int main() {
 		tabuset3.clear();
 	}
 	duration = (clock() - start_time) / (double)CLOCKS_PER_SEC;
-	cout << "LS1用时：" << duration << " s." << endl;
+	cout << "用时：" << duration << " s." << endl;
 
 
 	getchar();

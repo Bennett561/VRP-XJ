@@ -6,7 +6,18 @@ using namespace std;
 class Bin
 {
 public:
-	Bin(string id, double width, double length, double weight, string station);
+	Bin(string id, double w, double l, double wt, string s)
+		:id(id),width(w), length(l),weight(wt),station(s)
+	{
+		this->real_length = length;
+		this->real_width = width;
+		this->area = width * length;
+		x = 0;
+		y = 0;
+		if (this->length > this->width)
+			this->rotate();
+	}
+
 	void rotate();
 	void update();
 	string get_id() const { return this->id; }
@@ -36,22 +47,6 @@ private:
 	double real_length;
 	double real_width;
 };
-
-Bin::Bin(string id, double width, double length, double weight, string station)
-{
-	this->id = id;
-	this->width = width;
-	this->length = length;
-	this->real_length = length;
-	this->real_width = width;
-	this->area = width * length;
-	this->weight = weight;
-	this->station = station;
-	x = 0;
-	y = 0;
-	if (this->length > this->width)
-		this->rotate();
-}
 
 inline void Bin::rotate()
 {

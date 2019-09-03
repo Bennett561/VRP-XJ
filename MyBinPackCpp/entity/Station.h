@@ -8,7 +8,9 @@ using namespace std;
 class Station
 {
 public:
-	Station(string id, double limit, double load_time);
+	Station(string id, double limit, double load_time)
+		:id(id), limit(limit), load_time(load_time){}
+
 	double get_limit() const { return limit; }
 	double get_load_time() const { return load_time; }
 	string get_id() const { return id; }
@@ -27,9 +29,3 @@ inline void Station::discard(string vid) { //从pass_vehicles中去除箱子
 		pass_vehicles.erase(vid);
 }
 
-Station::Station(string id, double limit, double load_time)
-{
-	this->id = id;
-	this->limit = limit;
-	this->load_time = load_time;
-}
