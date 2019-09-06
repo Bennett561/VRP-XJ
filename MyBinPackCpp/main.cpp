@@ -32,27 +32,24 @@ int main() {
 	last_neighbour_cost = best_known_cost;
 	last_neighbour_sol = best_known_sol;
 
-	cout << "初始成本：" << best_known_cost << endl;;
+	cout << "初始成本：" << best_known_cost << endl;
 	n_break = 1;  //当前迭代打散车数
 	temperature = 5000; //当前温度，即py中的T[0]
 	d_away = D_INTERVAL;  //距下次退火的迭代数，即py中的T[1]
-
-	clock_t start_time;
-	double duration;
-	start_time = clock();
 
 
 	//主迭代
 	for (int iteration = 0; iteration < 1000; iteration++) {
 		cout << "当前迭代第" << iteration << "次:" << endl;
 		cout << "当前最优成本：" << best_known_cost << endl;
+		cout << "当前打散数：" << n_break << endl; 
 		no_improve_flag = false;
 		while (!no_improve_flag) {
 			no_improve_flag = true;
-				Search(LS1);
-				Search(LS2);
-				Search(LS3);
-				Search(LS2);
+			Search(LS1);
+			Search(LS2);
+			Search(LS3);
+			Search(LS2);
 		}
 
 		cout << "Current Neighbor Best: " << current_neighbour_cost << endl;
@@ -73,7 +70,7 @@ int main() {
 		}
 		d_away > 0 ? d_away-- : d_away = 5;
 		if (d_away == 0)
-			temperature *= D_RATE;
+			temperature < 0.05 ? temperature : temperature *= D_RATE;
 		cout << "当前温度: " << temperature << endl;
 		current_neighbour_cost = cal_total_cost();
 		cout << "jump后成本:" << current_neighbour_cost << endl;
@@ -82,9 +79,6 @@ int main() {
 		tabuset2.clear();
 		tabuset3.clear();
 	}
-	duration = (clock() - start_time) / (double)CLOCKS_PER_SEC;
-	cout << "用时：" << duration << " s." << endl;
-
 
 	getchar();
 	system("pause");

@@ -8,8 +8,45 @@ extern unordered_map<string, Vehicle> unused_vehicles;
 extern unordered_map<string, Bin> bins;
 extern unordered_map<string, Station> stations;
 
+bool comp_ascss(const Bin &a, const Bin &b)
+{
+	double shortera = a.get_width() < a.get_length() ? a.get_width() : a.get_length();
+	double shorterb = b.get_width() < b.get_length() ? b.get_width() : b.get_length();
+	return shortera < shorterb;
+}
 
+bool comp_ascperim(const Bin &a, const Bin &b)
+{
+	double perima = a.get_width() + a.get_length();
+	double perimb = b.get_width() + b.get_length();
+	return perima < perimb;
+}
 
+bool comp_ascdiff(const Bin &a, const Bin &b)
+{
+	double diffa = abs(a.get_width() - a.get_length());
+	double diffb = abs(b.get_width() - b.get_length());
+	return diffa < diffb;
+}
+
+bool comp_ascls(const Bin &a, const Bin &b)
+{
+	double longera = a.get_width() > a.get_length() ? a.get_width() : a.get_length();
+	double longerb = b.get_width() > b.get_length() ? b.get_width() : b.get_length();
+	return longera < longerb;
+}
+
+bool comp_asca(const Bin &a, const Bin &b)
+{
+	return a.get_area() < b.get_area();
+}
+
+bool comp_ascratio(const Bin &a, const Bin &b)
+{
+	double ratioa = a.get_width() / a.get_length();
+	double ratiob = b.get_width() / b.get_length();
+	return ratioa < ratiob;
+}
 
 bool comp_desca(const Bin &a, const Bin &b)
 {

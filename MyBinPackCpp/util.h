@@ -389,4 +389,61 @@ namespace my_util {
 		return costper1 > costper2;
 	}
 
+	//保存提交解
+	char *save_submit_sol(const char* filename) {
+		Document d;
+		d.SetObject();
+		Document::AllocatorType& allocator = d.GetAllocator();
+
+		for (auto& v : used_vehicles) {
+			Value val(kObjectType);
+
+			//Route
+			Value vo(kArrayType);
+			for (auto s : v.visit_order) {
+				vo.PushBack(StringRef(to_char_array(s)), allocator);
+			}
+			val.AddMember("Route", vo, allocator);
+
+			//每个站要装的箱子
+
+			for (auto sid : v.visit_order) {
+				Value sta(kObjectType);
+				for (auto binid : v.loaded_items)
+				{
+					if (bins.at(binid).get_station() == sid)
+					{
+						Value coordinates(kArrayType);
+						Value coord(kArrayType);
+						coord.PushBack(bins.at(binid).get_x(), allocator);
+						coord.PushBack(bins.at(binid).get_y(), allocator);
+						coordinates.PushBack(coord, allocator);
+						Value coord1(kArrayType);
+						coord1.PushBack(bins.at(binid).get_x() + bins.at(binid).get_real_width(), allocator);
+						coord1.PushBack(bins.at(binid).get_y(), allocator);
+						coordinates.PushBack(coord1, allocator);
+						Value coord2(kArrayType);
+						coord2.PushBack(bins.at(binid).get_x() + bins.at(binid).get_real_width(), allocator);
+						coord2.PushBack(bins.at(binid).get_y() + bins.at(binid).get_real_length(), allocator);
+						coordinates.PushBack(coord2, allocator);
+						Value coord3(kArrayType);
+						coord3.PushBack(bins.at(binid).get_x(), allocator);
+						coord3.PushBack(bins.at(binid).get_y() + bins.at(binid).get_real_length(), allocator);
+						coordinates.PushBack(coord3, allocator);
+						sta.AddMember(StringRef(to_char_array(binid)), coordinates, allocator);
+					}
+				}
+				val.AddMember(StringRef(to_char_array(sid)), sta, allocator);
+			}
+			d.AddMember(StringRef(to_char_array(v.get_id())), val, allocator);
+		}
+
+		StringBuffer buffer;
+		Writer<StringBuffer> writer(buffer);
+		d.Accept(writer);
+		writeFile(filename, buffer.GetString());
+
+		return to_char_array(buffer.GetString());
+	}
+
 }

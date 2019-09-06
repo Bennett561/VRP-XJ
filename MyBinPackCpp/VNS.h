@@ -661,9 +661,9 @@ namespace vns
 	void jump_neighbour()
 	{
 		sort(used_vehicles.begin(), used_vehicles.end(), comp_veh_costper);
-		int num_random = 3;
+		int num_random = 5;
 		vector<string> unpacked_bins;
-		for (int i = 0; i < n_break; i++)//删除性价比低的used_vehicle
+		for (int i = 0; i < num_random; i++)//删除性价比低的used_vehicle
 		{
 			unpacked_bins.insert(unpacked_bins.end(), used_vehicles.back().loaded_items.begin(), used_vehicles.back().loaded_items.end());
 			for (auto &s1id : used_vehicles.back().visit_order)
@@ -678,7 +678,7 @@ namespace vns
 			used_vehicles.pop_back();
 		}
 		srand((int)time(NULL));
-		for (int i = 0; i < num_random; i++)//随机删除used_vehicle
+		for (int i = 0; i < n_break; i++)//随机删除used_vehicle
 		{
 			size_t index = rand() % used_vehicles.size();
 			unpacked_bins.insert(unpacked_bins.end(), used_vehicles[index].loaded_items.begin(), used_vehicles[index].loaded_items.end());
